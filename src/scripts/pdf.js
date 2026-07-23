@@ -5,6 +5,66 @@
 let activePreviewProposalId = null;
 let currentPdfTemplate = 'modern'; // modern, minimalist, executive
 let currentPdfShowWatermark = true;
+let currentPdfConvertToTRY = false;
+
+/**
+ * Builds a TRY conversion summary HTML block for use inside PDF templates.
+ * Returns empty string when conversion is disabled or currency is already TRY.
+ */
+function buildTRYConversionHTML(p, totals, accentColor) {
+  if (!currentPdfConvertToTRY) return '';
+  const currency = p.currency || 'TRY';
+  if (currency === 'TRY') return ''; // Already TRY, no conversion needed
+
+  // Get rates from CurrencyEngine
+  const rates = (window.CurrencyEngine && window.CurrencyEngine.cachedRates) || {};
+  const rateToTRY = rates[currency];
+  if (!rateToTRY || rateToTRY <= 0) {
+    return `
+      <div style="margin-top: 16px; padding: 14px 18px; border-radius: 8px; background: rgba(245,158,11,0.1); border: 1px dashed #f59e0b; font-size: 11px; color: #92400e;">
+        <strong>⚠ TL Karşılığı:</strong> Kur bilgisi bulunamadı. Lütfen Firma Ayarları &gt; Kur Güncelle butonuna basın.
+      </div>`;
+  }
+
+  const currSymbol = getCurrencySymbol(currency);
+  const rateDate = (window.CurrencyEngine && window.CurrencyEngine.lastFetchedDate) || 'bilinmiyor';
+
+  const subtotalTRY    = totals.subtotal * rateToTRY;
+  const discountTRY    = totals.discountAmount * rateToTRY;
+  const vatTRY         = totals.vatTotal * rateToTRY;
+  const grandTotalTRY  = totals.grandTotal * rateToTRY;
+
+  const discountRow = totals.discountAmount > 0 ? `
+    <tr>
+      <td style="padding: 3px 8px;">İskonto (%${p.discountRate}):</td>
+      <td style="padding: 3px 8px; text-align: right; color: #ef4444;">- ₺ ${discountTRY.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+    </tr>` : '';
+
+  return `
+    <div style="margin-top: 20px; padding: 16px 18px; border-radius: 8px; background: rgba(59,130,246,0.06); border: 2px solid rgba(59,130,246,0.3);">
+      <div style="font-size: 11px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
+        ₺ TÜRK LİRASI KARŞILIĞI (1 ${currency} = ${rateToTRY.toLocaleString('tr-TR', { minimumFractionDigits: 4 })} ₺)
+      </div>
+      <table style="width: 100%; font-size: 11px; border-collapse: collapse; color: #1e293b;">
+        <tr>
+          <td style="padding: 3px 8px;">Ara Toplam (TL):</td>
+          <td style="padding: 3px 8px; text-align: right;">₺ ${subtotalTRY.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+        </tr>
+        ${discountRow}
+        <tr>
+          <td style="padding: 3px 8px;">KDV Toplamı (TL):</td>
+          <td style="padding: 3px 8px; text-align: right;">₺ ${vatTRY.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+        </tr>
+        <tr style="font-weight: 700; font-size: 12px; border-top: 1px solid rgba(59,130,246,0.4);">
+          <td style="padding: 6px 8px 3px;">GENEL TOPLAM (TL):</td>
+          <td style="padding: 6px 8px 3px; text-align: right;">₺ ${grandTotalTRY.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+        </tr>
+      </table>
+      <div style="font-size: 9.5px; color: #64748b; margin-top: 8px; border-top: 1px solid rgba(59,130,246,0.2); padding-top: 6px;">
+        * Kur bilgisi: TCMB / ${rateDate} — Bilgi amaçlıdır, bağlayıcı değildir.
+      </div>
+    </div>`;
+}
 
 function viewProposalPDF(proposalId) {
   activePreviewProposalId = proposalId;
@@ -38,6 +98,11 @@ function setPdfTemplate(templateName) {
 
 function setPdfWatermarkToggle(show) {
   currentPdfShowWatermark = show;
+  renderPDFDocument();
+}
+
+function setPdfConvertToTRY(enabled) {
+  currentPdfConvertToTRY = enabled;
   renderPDFDocument();
 }
 
@@ -203,6 +268,7 @@ function renderPDFDocument() {
               <td class="text-right">${currSymbol} ${totals.grandTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
             </tr>
           </table>
+          ${buildTRYConversionHTML(p, totals, '#0f172a')}
         </div>
 
         <!-- Notes -->
@@ -315,6 +381,7 @@ function renderPDFDocument() {
                 <td class="text-right">${currSymbol} ${totals.grandTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
               </tr>
             </table>
+            ${buildTRYConversionHTML(p, totals, accentColor)}
           </div>
 
           <!-- Notes -->
@@ -418,6 +485,7 @@ function renderPDFDocument() {
               <td class="text-right">${currSymbol} ${totals.grandTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
             </tr>
           </table>
+          ${buildTRYConversionHTML(p, totals, '#0f172a')}
         </div>
 
         <!-- Notes & Bank Info -->
@@ -469,5 +537,6 @@ function printProposal() {
 window.viewProposalPDF = viewProposalPDF;
 window.setPdfTemplate = setPdfTemplate;
 window.setPdfWatermarkToggle = setPdfWatermarkToggle;
+window.setPdfConvertToTRY = setPdfConvertToTRY;
 window.downloadProposalPDF = downloadProposalPDF;
 window.printProposal = printProposal;

@@ -753,6 +753,11 @@
                 <label for="pdf-watermark-toggle" style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); cursor: pointer;">Damga / Filigran</label>
               </div>
 
+              <div style="display: flex; align-items: center; gap: 6px; margin-right: 8px;">
+                <input type="checkbox" id="pdf-convert-try-toggle" onchange="setPdfConvertToTRY(this.checked)">
+                <label for="pdf-convert-try-toggle" style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); cursor: pointer;">₺ TL'ye Dönüştür</label>
+              </div>
+
               <button type="button" class="btn btn-secondary" onclick="switchTab('view-proposals-list')">
                 <i class="ri-arrow-left-line"></i> Tekliflere Dön
               </button>
