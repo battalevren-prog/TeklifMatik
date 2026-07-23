@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeklifMatik - Profesyonel Masaüstü Teklif Uygulaması</title>
+
+  <!-- Remix Icons for crisp modern icons -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  
+  <!-- App Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/print.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">
+          <i class="ri-file-paper-2-line"></i>
+        </div>
+        <div class="brand-title">TeklifMatik</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-view="view-dashboard">
+          <i class="ri-dashboard-3-line"></i>
+          <span>Ana Sayfa</span>
+        </a>
+        <a href="#" class="nav-item" data-view="view-proposals-list">
+          <i class="ri-file-list-3-line"></i>
+          <span>Teklifler</span>
+        </a>
+        <a href="#" class="nav-item" data-view="view-clients-list">
+          <i class="ri-contacts-book-2-line"></i>
+          <span>Müşteriler</span>
+        </a>
+        <a href="#" class="nav-item" data-view="view-products-catalog">
+          <i class="ri-box-3-line"></i>
+          <span>Ürün Kataloğu</span>
+        </a>
+        <a href="#" class="nav-item" data-view="view-services-catalog">
+          <i class="ri-customer-service-2-line"></i>
+          <span>Hizmet Kataloğu</span>
+        </a>
+        <a href="#" class="nav-item" data-view="view-settings">
+          <i class="ri-settings-4-line"></i>
+          <span>Firma Ayarları</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()">
+          <i class="ri-sun-line"></i> Açık Tema
+        </button>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <main class="main-content">
+
+      <!-- Top Header Bar -->
+      <header class="top-header">
+        <div class="header-title" id="header-title-text">Ana Sayfa & Özet</div>
+        <div class="header-actions">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="handleImportBackup()" title="Yedek İçe Aktar">
+            <i class="ri-upload-cloud-line"></i> Yedek Yükle
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="handleExportBackup()" title="Yedek Dışa Aktar">
+            <i class="ri-download-cloud-line"></i> Yedek Al
+          </button>
+          <button type="button" class="btn btn-primary" onclick="openProposalBuilder()">
+            <i class="ri-add-line"></i> Yeni Teklif
+          </button>
+        </div>
+      </header>
+
+      <!-- View Container -->
+      <div class="view-container">
+
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view-section active">
+          <!-- Stat Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon primary">
+                <i class="ri-file-text-line"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Toplam Teklif</div>
+                <div class="stat-value" id="stat-total-count">0</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon warning">
+                <i class="ri-time-line"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Bekleyen / Gönderilen</div>
+                <div class="stat-value" id="stat-pending-count">0</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon success">
+                <i class="ri-checkbox-circle-line"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Onaylanan Teklif</div>
+                <div class="stat-value" id="stat-approved-count">0</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon purple">
+                <i class="ri-money-dollar-circle-line"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Toplam Hacim (TRY)</div>
+                <div class="stat-value" id="stat-total-value">0 ₺</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Proposals Panel -->
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="ri-history-line"></i> Son Oluşturulan Teklifler
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="switchTab('view-proposals-list')">
+                Tümünü Gör <i class="ri-arrow-right-line"></i>
+              </button>
+            </div>
+
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Teklif No</th>
+                    <th>Müşteri / Firma</th>
+                    <th>Tarih</th>
+                    <th>Genel Toplam</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-proposals-tbody">
+                  <!-- Dynamic Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- 2. PROPOSALS LIST VIEW -->
+        <section id="view-proposals-list" class="view-section">
+          <div class="glass-panel">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 16px;">
+              <div class="panel-title">
+                <i class="ri-file-list-3-line"></i> Tüm Teklifler Listesi
+              </div>
+              <div style="display: flex; gap: 12px; flex: 1; max-width: 500px;">
+                <input type="text" id="proposal-search-input" class="form-control" placeholder="Teklif no veya müşteri ara..." oninput="renderProposalsList()">
+                <select id="proposal-status-filter" class="form-control" style="width: 160px;" onchange="renderProposalsList()">
+                  <option value="all">Tüm Durumlar</option>
+                  <option value="draft">Taslak</option>
+                  <option value="sent">Gönderildi</option>
+                  <option value="approved">Onaylandı</option>
+                  <option value="rejected">Reddedildi</option>
+                  <option value="invoiced">Faturalandı</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Teklif No</th>
+                    <th>Müşteri</th>
+                    <th>Tarih</th>
+                    <th>Geçerlilik</th>
+                    <th>Genel Toplam</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody id="proposals-table-tbody">
+                  <!-- Dynamic Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- 3. PROPOSAL BUILDER / EDIT VIEW -->
+        <section id="view-proposal-builder" class="view-section">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title" id="builder-title">Yeni Teklif Oluştur</div>
+              <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn btn-secondary" onclick="switchTab('view-proposals-list')">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="saveCurrentProposal()">
+                  <i class="ri-save-line"></i> Teklifi Kaydet
+                </button>
+              </div>
+            </div>
+
+            <!-- Main Proposal Fields -->
+            <div class="form-grid" style="margin-bottom: 24px;">
+              <div class="form-group">
+                <label>Teklif Numarası *</label>
+                <input type="text" id="builder-proposal-number" class="form-control" placeholder="Örn. TKL-2026-001">
+              </div>
+
+              <div class="form-group">
+                <label>Müşteri Seçin *</label>
+                <div style="display: flex; gap: 8px;">
+                  <select id="builder-client-select" class="form-control" style="flex: 1;">
+                    <!-- Options -->
+                  </select>
+                  <button type="button" class="btn btn-secondary btn-icon" onclick="openClientModal()" title="Yeni Müşteri Ekle">
+                    <i class="ri-user-add-line"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Teklif Tarihi</label>
+                <input type="date" id="builder-date" class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label>Son Geçerlilik Tarihi</label>
+                <input type="date" id="builder-valid-until" class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label>Para Birimi</label>
+                <select id="builder-currency" class="form-control" onchange="recalculateBuilderTotals()">
+                  <option value="TRY">TRY (₺)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Teklif Durumu</label>
+                <select id="builder-status" class="form-control">
+                  <option value="draft">Taslak</option>
+                  <option value="sent">Gönderildi</option>
+                  <option value="approved">Onaylandı</option>
+                  <option value="rejected">Reddedildi</option>
+                  <option value="invoiced">Faturalandı</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Items Table Builder -->
+            <div style="margin-bottom: 20px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <h4 style="font-size: 1rem; color: var(--text-main);">Hizmet / Ürün Kalemleri</h4>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="openCatalogPickerModal()" title="Katalog Liste Modalı">
+                    <i class="ri-price-tag-3-line"></i> Katalogdan Ürün Seç
+                  </button>
+                  <select id="builder-catalog-select" class="form-control" style="width: 220px;" onchange="addCatalogItemToProposal()">
+                    <!-- Catalog dropdown -->
+                  </select>
+                  <button type="button" class="btn btn-primary btn-sm" onclick="addProposalItemRow()">
+                    <i class="ri-add-line"></i> Manuel Satır Ekle
+                  </button>
+                </div>
+              </div>
+
+              <div class="data-table-container">
+                <table class="items-table">
+                  <thead>
+                    <tr>
+                      <th>Açıklama / Hizmet Detayı</th>
+                      <th>Birim</th>
+                      <th>Miktar</th>
+                      <th>Birim Fiyat</th>
+                      <th>KDV %</th>
+                      <th style="text-align: right;">Toplam</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="builder-items-tbody">
+                    <!-- Dynamic Item Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Calculation Totals & Terms -->
+            <div style="display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between;">
+              <div class="form-group" style="flex: 1; min-width: 300px;">
+                <label>Teklif Şartları & Notlar (PDF Dipnotu)</label>
+                <textarea id="builder-terms" class="form-control" style="min-height: 120px;" placeholder="• Fiyatlarımıza KDV dahil değildir.&#10;• %50 ön ödeme sipariş onayında tahsil edilir."></textarea>
+                
+                <div class="form-group" style="margin-top: 14px;">
+                  <label>Genel İskonto Oranı (%)</label>
+                  <input type="number" id="builder-discount" class="form-control" value="0" min="0" max="100" step="1" style="width: 160px;" oninput="recalculateBuilderTotals()">
+                </div>
+              </div>
+
+              <div class="calc-summary">
+                <div class="calc-row">
+                  <span>Ara Toplam:</span>
+                  <strong id="calc-subtotal">0.00 ₺</strong>
+                </div>
+                <div class="calc-row">
+                  <span>Genel İskonto:</span>
+                  <strong id="calc-discount" style="color: #ef4444;">- 0.00 ₺</strong>
+                </div>
+                <div class="calc-row">
+                  <span>KDV Toplamı:</span>
+                  <strong id="calc-vat">0.00 ₺</strong>
+                </div>
+                <div class="calc-row grand-total">
+                  <span>GENEL TOPLAM:</span>
+                  <strong id="calc-grand-total">0.00 ₺</strong>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- 4. CLIENTS VIEW -->
+        <section id="view-clients-list" class="view-section">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="ri-contacts-book-2-line"></i> Müşteri Rehberi
+              </div>
+              <div style="display: flex; gap: 12px;">
+                <input type="text" id="client-search-input" class="form-control" placeholder="Müşteri adı veya vergi no ara..." oninput="renderClientsList()">
+                <button type="button" class="btn btn-primary" onclick="openClientModal()">
+                  <i class="ri-user-add-line"></i> Yeni Müşteri Ekle
+                </button>
+              </div>
+            </div>
+
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Firma / Müşteri Adı</th>
+                    <th>Yetkili Kişi</th>
+                    <th>Telefon</th>
+                    <th>E-posta</th>
+                    <th>Teklifler</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody id="clients-table-tbody">
+                  <!-- Dynamic Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- 5. PRODUCTS CATALOG VIEW -->
+        <section id="view-products-catalog" class="view-section">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="ri-box-3-line"></i> Ürün Kataloğu
+              </div>
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="products-search-input" class="form-control" placeholder="Ürün ara..." oninput="renderCatalogList()" style="max-width: 220px;">
+                <input type="file" id="products-excel-input" accept=".xlsx,.xls,.csv" style="display: none;" onchange="importCatalogFromExcel(event, 'product')">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('products-excel-input').click()" title="Excel / CSV dosyasından ürün yükle">
+                  <i class="ri-file-excel-2-line"></i> Excel / CSV Yükle
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="exportCatalogToExcel('product')" title="Ürünleri Excel olarak indir">
+                  <i class="ri-download-2-line"></i> Excel İndir
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="downloadCatalogTemplate('product')" title="Excel ürün şablonu indir">
+                  <i class="ri-file-download-line"></i> Şablon İndir
+                </button>
+                <button type="button" class="btn btn-primary" onclick="openCatalogModal(null, 'product')">
+                  <i class="ri-add-line"></i> Yeni Ürün Ekle
+                </button>
+              </div>
+            </div>
+
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Ürün Adı</th>
+                    <th>Birim</th>
+                    <th>Varsayılan Fiyat</th>
+                    <th>KDV Oranı</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody id="products-table-tbody">
+                  <!-- Dynamic Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. SERVICES CATALOG VIEW -->
+        <section id="view-services-catalog" class="view-section">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="ri-customer-service-2-line"></i> Hizmet Kataloğu
+              </div>
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="services-search-input" class="form-control" placeholder="Hizmet ara..." oninput="renderCatalogList()" style="max-width: 220px;">
+                <input type="file" id="services-excel-input" accept=".xlsx,.xls,.csv" style="display: none;" onchange="importCatalogFromExcel(event, 'service')">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('services-excel-input').click()" title="Excel / CSV dosyasından hizmet yükle">
+                  <i class="ri-file-excel-2-line"></i> Excel / CSV Yükle
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="exportCatalogToExcel('service')" title="Hizmetleri Excel olarak indir">
+                  <i class="ri-download-2-line"></i> Excel İndir
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="downloadCatalogTemplate('service')" title="Excel hizmet şablonu indir">
+                  <i class="ri-file-download-line"></i> Şablon İndir
+                </button>
+                <button type="button" class="btn btn-primary" onclick="openCatalogModal(null, 'service')">
+                  <i class="ri-add-line"></i> Yeni Hizmet Ekle
+                </button>
+              </div>
+            </div>
+
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Hizmet Başlığı</th>
+                    <th>Birim</th>
+                    <th>Varsayılan Fiyat</th>
+                    <th>KDV Oranı</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody id="services-table-tbody">
+                  <!-- Dynamic Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- 6. SETTINGS VIEW -->
+        <section id="view-settings" class="view-section">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="ri-settings-4-line"></i> Firma Profil & Şablon Ayarları
+              </div>
+              <button type="button" class="btn btn-primary" onclick="saveSettingsForm()">
+                <i class="ri-save-line"></i> Ayarları Kaydet
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Firma Logosu (PDF Teklif Başlığında Görünür)</label>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                  <img id="setting-logo-preview" src="" style="max-height: 60px; max-width: 180px; display: none; border-radius: 6px; border: 1px solid var(--border-color); padding: 4px; background: #fff;">
+                  <input type="file" id="setting-logo-input" accept="image/*" style="display: none;" onchange="handleLogoUpload(event)">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('setting-logo-input').click()">
+                    <i class="ri-image-add-line"></i> Logo Yükle
+                  </button>
+                  <button type="button" class="btn btn-danger btn-sm" onclick="removeLogo()">Logoyu Kaldır</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Firma Unvanı *</label>
+                <input type="text" id="setting-company-name" class="form-control" placeholder="Örn. TeknoSoft Ltd. Şti.">
+              </div>
+
+              <div class="form-group">
+                <label>Alt Unvan / Faaliyet Alanı</label>
+                <input type="text" id="setting-company-sub" class="form-control" placeholder="Örn. Web & Yazılım Çözümleri">
+              </div>
+
+              <div class="form-group">
+                <label>Vergi Dairesi</label>
+                <input type="text" id="setting-tax-office" class="form-control" placeholder="Örn. Maslak V.D.">
+              </div>
+
+              <div class="form-group">
+                <label>Vergi Numarası</label>
+                <input type="text" id="setting-tax-no" class="form-control" placeholder="Örn. 1234567890">
+              </div>
+
+              <div class="form-group">
+                <label>Telefon</label>
+                <input type="text" id="setting-phone" class="form-control" placeholder="Örn. +90 (212) 555 0199">
+              </div>
+
+              <div class="form-group">
+                <label>E-posta Adresi</label>
+                <input type="email" id="setting-email" class="form-control" placeholder="Örn. teklif@firma.com">
+              </div>
+
+              <div class="form-group">
+                <label>Website</label>
+                <input type="text" id="setting-website" class="form-control" placeholder="Örn. https://firma.com">
+              </div>
+
+              <div class="form-group">
+                <label>PDF Renk Vurgusu (Accent Color)</label>
+                <input type="color" id="setting-pdf-color" class="form-control" value="#3b82f6" style="height: 42px; cursor: pointer; padding: 2px;">
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Adres Bilgisi</label>
+                <input type="text" id="setting-address" class="form-control" placeholder="Firma açık adresi">
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Banka IBAN Bilgileri</label>
+                <input type="text" id="setting-iban" class="form-control" placeholder="TR68 0006 2000 0001 2345 6789 01 - Banka Adı">
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Varsayılan Teklif Şartları ve Notlar</label>
+                <textarea id="setting-notes" class="form-control" style="min-height: 100px;" placeholder="Tüm yeni tekliflerde varsayılan olarak gelecek dipnot metni"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- TCMB Currency Rates Panel -->
+          <div class="glass-panel" style="margin-top: 24px;">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="ri-money-dollar-circle-line"></i> Güncel Döviz Kurları (TCMB Entegrasyonu)
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="fetchAndDisplayTCMBRates()">
+                <i class="ri-refresh-line"></i> Kurları Güncelle (TCMB)
+              </button>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>USD / TRY (Dolar Satış Kuru)</label>
+                <input type="number" id="setting-rate-usd" class="form-control" step="0.0001" placeholder="38.50">
+              </div>
+
+              <div class="form-group">
+                <label>EUR / TRY (Euro Satış Kuru)</label>
+                <input type="number" id="setting-rate-eur" class="form-control" step="0.0001" placeholder="41.20">
+              </div>
+
+              <div class="form-group">
+                <label>GBP / TRY (Sterlin Satış Kuru)</label>
+                <input type="number" id="setting-rate-gbp" class="form-control" step="0.0001" placeholder="48.50">
+              </div>
+
+              <div class="form-group" style="display: flex; align-items: flex-end;">
+                <span id="rate-last-updated-text" style="font-size: 0.85rem; color: var(--text-muted);">
+                  Son Güncelleme: -
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- 7. PDF PREVIEW VIEW -->
+        <section id="view-pdf-preview" class="view-section">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;" class="no-print">
+            <h3 id="pdf-preview-title" style="font-family: 'Outfit', sans-serif;">Teklif Önizleme</h3>
+            <div style="display: flex; gap: 10px;">
+              <button type="button" class="btn btn-secondary" onclick="switchTab('view-proposals-list')">
+                <i class="ri-arrow-left-line"></i> Tekliflere Dön
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="printProposal()">
+                <i class="ri-printer-line"></i> Yazdır
+              </button>
+              <button type="button" class="btn btn-primary" onclick="downloadProposalPDF()">
+                <i class="ri-file-download-line"></i> PDF İndir
+              </button>
+            </div>
+          </div>
+
+          <div class="pdf-preview-wrapper">
+            <div id="pdf-document-container">
+              <!-- Rendered A4 PDF -->
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Client Add/Edit Modal -->
+  <div class="modal-overlay" id="client-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title" id="client-modal-title">Yeni Müşteri Ekle</div>
+        <button class="modal-close" onclick="closeClientModal()">&times;</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label>Firma / Müşteri Adı *</label>
+          <input type="text" id="modal-client-name" class="form-control" placeholder="Örn. ABC Lojistik A.Ş.">
+        </div>
+
+        <div class="form-group">
+          <label>Yetkili Kişi</label>
+          <input type="text" id="modal-client-contact" class="form-control" placeholder="Örn. Ahmet Bey">
+        </div>
+
+        <div class="form-group">
+          <label>Telefon</label>
+          <input type="text" id="modal-client-phone" class="form-control" placeholder="+90 532 ...">
+        </div>
+
+        <div class="form-group">
+          <label>E-posta</label>
+          <input type="email" id="modal-client-email" class="form-control" placeholder="musteri@firma.com">
+        </div>
+
+        <div class="form-group">
+          <label>Vergi Dairesi</label>
+          <input type="text" id="modal-client-tax-office" class="form-control" placeholder="Vergi Dairesi">
+        </div>
+
+        <div class="form-group">
+          <label>Vergi No</label>
+          <input type="text" id="modal-client-tax-no" class="form-control" placeholder="10 haneli V.No">
+        </div>
+
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label>Adres</label>
+          <textarea id="modal-client-address" class="form-control" rows="2" placeholder="Firma adresi"></textarea>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+        <button type="button" class="btn btn-secondary" onclick="closeClientModal()">İptal</button>
+        <button type="button" class="btn btn-primary" onclick="saveClientForm()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Catalog Add/Edit Modal -->
+  <div class="modal-overlay" id="catalog-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title" id="catalog-modal-title">Yeni Hizmet / Ürün Ekle</div>
+        <button class="modal-close" onclick="closeCatalogModal()">&times;</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label>Başlık / Açıklama *</label>
+          <input type="text" id="modal-catalog-title" class="form-control" placeholder="Örn. Termal Fiş Yazıcı veya Web Tasarım">
+        </div>
+
+        <div class="form-group">
+          <label>Kategori Türü *</label>
+          <select id="modal-catalog-type" class="form-control">
+            <option value="product">Fiziksel Ürün</option>
+            <option value="service">Hizmet / Danışmanlık</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Birim Türü</label>
+          <select id="modal-catalog-unit" class="form-control">
+            <option value="Adet">Adet</option>
+            <option value="Saat">Saat</option>
+            <option value="Gün">Gün</option>
+            <option value="Ay">Ay</option>
+            <option value="Proje">Proje</option>
+            <option value="Paket">Paket</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Birim Fiyat</label>
+          <input type="number" id="modal-catalog-price" class="form-control" placeholder="0.00" min="0" step="10">
+        </div>
+
+        <div class="form-group">
+          <label>Para Birimi *</label>
+          <select id="modal-catalog-currency" class="form-control">
+            <option value="TRY">TRY (₺)</option>
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>KDV Oranı</label>
+          <select id="modal-catalog-vat" class="form-control">
+            <option value="20">%20 (Standart)</option>
+            <option value="10">%10</option>
+            <option value="1">%1</option>
+            <option value="0">%0 (KDV Muaf)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label>Detaylı Açıklama / Teknik Özellikler (Teklifte Görünür)</label>
+          <textarea id="modal-catalog-description" class="form-control" rows="2" placeholder="Örn. 80mm termal baskı, 250mm/sn hız, USB/Ethernet bağlantı arabirimi."></textarea>
+        </div>
+
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label>Ürün / Hizmet Görseli (Teklif PDF'inde Görünür)</label>
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <img id="modal-catalog-image-preview" src="" style="width: 54px; height: 54px; object-fit: cover; display: none; border-radius: 6px; border: 1px solid var(--border-color); background: #fff;">
+            <input type="file" id="modal-catalog-image-input" accept="image/*" style="display: none;" onchange="handleCatalogImageUpload(event)">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-catalog-image-input').click()">
+              <i class="ri-image-add-line"></i> Görsel Yükle
+            </button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeCatalogImage()">Görseli Kaldır</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+        <button type="button" class="btn btn-secondary" onclick="closeCatalogModal()">İptal</button>
+        <button type="button" class="btn btn-primary" onclick="saveCatalogForm()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Catalog Picker Modal (for Proposal Builder) -->
+  <div class="modal" id="catalog-picker-modal">
+    <div class="modal-content" style="max-width: 720px; width: 90%;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="ri-price-tag-3-line"></i> Katalogdan Ürün Seç
+        </div>
+        <button class="modal-close" onclick="closeCatalogPickerModal()">&times;</button>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <input type="text" id="catalog-picker-search" class="form-control" placeholder="Ürün veya hizmet ara..." oninput="renderCatalogPickerList()">
+      </div>
+
+      <div class="data-table-container" style="max-height: 380px; overflow-y: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Hizmet / Ürün Adı</th>
+              <th>Birim</th>
+              <th>Birim Fiyat</th>
+              <th>KDV Oranı</th>
+              <th style="text-align: right;">İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="catalog-picker-tbody">
+            <!-- Dynamic Rows -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <button type="button" class="btn btn-secondary" onclick="closeCatalogPickerModal()">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Toast Notification Area -->
+  <div class="toast-container" id="toast-container"></div>
+
+
+  <!-- Scripts Integration -->
+  <script src="scripts/xlsx.full.min.js"></script>
+  <script src="scripts/currency.js"></script>
+  <script src="scripts/store.js"></script>
+  <script src="scripts/dashboard.js"></script>
+  <script src="scripts/proposals.js"></script>
+  <script src="scripts/clients.js"></script>
+  <script src="scripts/catalog.js"></script>
+  <script src="scripts/settings.js"></script>
+  <script src="scripts/pdf.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

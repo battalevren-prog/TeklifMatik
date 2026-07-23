@@ -1,0 +1,53 @@
+{
+  "name": "teklif-matik",
+  "version": "1.0.0",
+  "description": "macOS ve Windows Uyumlu Profesyonel Masaüstü Teklif Uygulaması",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.teklifmatik.app",
+    "productName": "TeklifMatik",
+    "directories": {
+      "output": "dist-app"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.business",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    }
+  },
+  "keywords": [
+    "teklif",
+    "proposal",
+    "quotation",
+    "invoice",
+    "electron",
+    "desktop-app",
+    "pdf"
+  ],
+  "author": "TeklifMatik",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^34.5.8"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}

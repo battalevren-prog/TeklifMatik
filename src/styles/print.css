@@ -1,0 +1,260 @@
+/* ==========================================================================
+   TeklifMatik Professional A4 Print & PDF Stylesheet
+   ========================================================================== */
+
+.pdf-preview-wrapper {
+  background-color: #cbd5e1;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+  border-radius: 12px;
+}
+
+.pdf-document {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm 18mm;
+  background: #ffffff;
+  color: #1e293b;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Header Section */
+.pdf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid var(--pdf-accent, #3b82f6);
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+}
+
+.pdf-company-info {
+  max-width: 320px;
+}
+
+.pdf-logo {
+  max-height: 60px;
+  max-width: 200px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.pdf-company-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.pdf-company-sub {
+  font-size: 12px;
+  color: #64748b;
+  white-space: pre-line;
+}
+
+.pdf-meta-box {
+  text-align: right;
+}
+
+.pdf-proposal-badge {
+  display: inline-block;
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--pdf-accent, #3b82f6);
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.pdf-meta-row {
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 3px;
+}
+
+.pdf-meta-row strong {
+  color: #0f172a;
+}
+
+/* Client & Summary Grid */
+.pdf-client-section {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 25px;
+}
+
+.pdf-client-box h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.pdf-client-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.pdf-client-details {
+  font-size: 12px;
+  color: #475569;
+  white-space: pre-line;
+}
+
+/* Items Table */
+.pdf-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+}
+
+.pdf-items-table th {
+  background-color: var(--pdf-accent, #3b82f6);
+  color: #ffffff;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.pdf-items-table th.text-right,
+.pdf-items-table td.text-right {
+  text-align: right;
+}
+
+.pdf-items-table th.text-center,
+.pdf-items-table td.text-center {
+  text-align: center;
+}
+
+.pdf-items-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+  font-size: 12.5px;
+}
+
+.pdf-items-table tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+/* Totals Section */
+.pdf-totals-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 25px;
+}
+
+.pdf-totals-table {
+  width: 320px;
+  border-collapse: collapse;
+}
+
+.pdf-totals-table td {
+  padding: 6px 12px;
+  font-size: 12.5px;
+  color: #475569;
+}
+
+.pdf-totals-table tr.total-row td {
+  border-top: 2px solid #0f172a;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  padding-top: 10px;
+}
+
+/* Notes & Bank Details */
+.pdf-notes-section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 15px;
+  margin-bottom: 20px;
+}
+
+.pdf-notes-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.pdf-notes-content {
+  font-size: 11.5px;
+  color: #475569;
+  white-space: pre-line;
+}
+
+/* Signature & Footer */
+.pdf-footer {
+  margin-top: auto;
+  border-top: 1px solid #cbd5e1;
+  padding-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.pdf-signature-box {
+  text-align: center;
+  width: 200px;
+}
+
+.pdf-signature-line {
+  border-bottom: 1px solid #94a3b8;
+  height: 40px;
+  margin-bottom: 6px;
+}
+
+/* Pure Print Mode Rule */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .pdf-preview-wrapper,
+  .pdf-document,
+  .pdf-document * {
+    visibility: visible;
+  }
+
+  .pdf-preview-wrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
+    background: transparent;
+  }
+
+  .pdf-document {
+    width: 100%;
+    box-shadow: none;
+    padding: 10mm;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
