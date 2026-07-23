@@ -496,7 +496,161 @@ function printProposal() {
   window.print();
 }
 
+// =====================================================================
+// PROFORMA FATURA PDF - Ayrı resmi fatura formatı
+// =====================================================================
+
+function viewProformaPDF(proformaId) {
+  activePreviewProposalId = proformaId;
+  const p = window.DB.getProposal(proformaId);
+  if (!p) return;
+
+  renderProformaPDFDocument();
+  document.getElementById('pdf-preview-title').textContent = `Proforma Fatura Önizleme: ${p.number}`;
+  switchTab('view-pdf-preview');
+}
+
+function renderProformaPDFDocument() {
+  if (!activePreviewProposalId) return;
+  const p = window.DB.getProposal(activePreviewProposalId);
+  if (!p) return;
+
+  const company = window.DB.getCompany(p.companyId);
+  const clients = window.DB.getClients();
+  const client = clients.find(c => c.id === p.clientId) || {
+    name: p.clientName || 'Müşteri Belirtilmedi',
+    taxOffice: '', taxNo: '', address: '', phone: '', email: '', contactPerson: ''
+  };
+
+  const container = document.getElementById('pdf-document-container');
+  if (!container) return;
+
+  const totals = calculateProposalTotals(p);
+  const dateStr = new Date(p.date).toLocaleDateString('tr-TR');
+  const validUntilStr = new Date(p.validUntil).toLocaleDateString('tr-TR');
+
+  const logoHTML = company.logo
+    ? `<img src="${company.logo}" style="max-height: 60px; max-width: 180px; object-fit: contain;" alt="${escapeHTML(company.name)}">`
+    : '';
+
+  const itemRowsHTML = (p.items || []).map((item, idx) => {
+    const qty = item.quantity || 1;
+    const price = item.unitPrice || 0;
+    const lineSub = qty * price;
+    const vatRate = item.vatRate || 0;
+    const lineTotal = lineSub + lineSub * (vatRate / 100);
+    const displayName = (item.invoiceName && item.invoiceName.trim()) ? item.invoiceName.trim() : item.title;
+    const showOriginal = item.invoiceName && item.invoiceName.trim() && item.invoiceName.trim() !== item.title;
+
+    return `
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 8px 10px; width: 30px; text-align: center; color: #64748b;">${idx + 1}</td>
+        <td style="padding: 8px 10px;">
+          <strong style="font-size: 12px;">${escapeHTML(displayName)}</strong>
+          ${showOriginal ? `<div style="font-size: 10px; color: #94a3b8;">(${escapeHTML(item.title)})</div>` : ''}
+        </td>
+        <td style="padding: 8px 10px; text-align: center; width: 70px;">${qty} ${escapeHTML(item.unit || 'Adet')}</td>
+        <td style="padding: 8px 10px; text-align: right; width: 110px;">&#8378; ${price.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+        <td style="padding: 8px 10px; text-align: center; width: 55px;">%${vatRate}</td>
+        <td style="padding: 8px 10px; text-align: right; width: 120px;"><strong>&#8378; ${lineTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</strong></td>
+      </tr>`;
+  }).join('');
+
+  const discountRow = totals.discountAmount > 0 ? `
+    <tr>
+      <td style="padding: 5px 10px; color: #64748b;">İskonto (%${p.discountRate}):</td>
+      <td style="padding: 5px 10px; text-align: right; color: #ef4444;">- &#8378; ${totals.discountAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+    </tr>` : '';
+
+  const termsHTML = (p.terms || company.iban) ? `
+    <div style="margin-top: 20px; padding: 12px 16px; background: #f8fafc; border-radius: 6px; border-left: 3px solid #94a3b8;">
+      <div style="font-size: 9.5px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 6px;">AÇIKLAMA / ÖDEME KOŞULLARI</div>
+      ${p.terms ? `<div style="font-size: 11px; color: #475569; white-space: pre-line;">${escapeHTML(p.terms)}</div>` : ''}
+      ${company.iban ? `<div style="font-size: 11px; font-weight: 600; color: #1e293b; margin-top: 6px;">Banka IBAN: ${escapeHTML(company.iban)}</div>` : ''}
+    </div>` : '';
+
+  container.innerHTML = `
+    <div class="pdf-document" style="background: #ffffff; font-family: 'Outfit', 'Segoe UI', sans-serif; color: #1e293b; position: relative;">
+
+      <div style="height: 4px; background: linear-gradient(90deg, #1e293b 60%, #3b82f6 100%); margin-bottom: 24px; border-radius: 2px;"></div>
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <div>
+          ${logoHTML}
+          <div style="font-size: 18px; font-weight: 800; color: #0f172a; margin-top: ${company.logo ? '10px' : '0'}px;">${escapeHTML(company.name)}</div>
+          ${company.subTitle ? `<div style="font-size: 11px; color: #64748b;">${escapeHTML(company.subTitle)}</div>` : ''}
+          <div style="font-size: 10.5px; color: #475569; margin-top: 4px; line-height: 1.5;">
+            ${company.address ? escapeHTML(company.address) + '<br>' : ''}
+            ${company.phone ? 'Tel: ' + escapeHTML(company.phone) + '&nbsp;&nbsp;' : ''}${company.email ? escapeHTML(company.email) : ''}
+            ${company.taxNo ? '<br>V.D.: ' + escapeHTML(company.taxOffice || '') + ' - V.No: ' + escapeHTML(company.taxNo) : ''}
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 22px; font-weight: 900; color: #0f172a; letter-spacing: -0.5px;">PROFORMA FATURA</div>
+          <div style="font-size: 13px; font-weight: 700; color: #3b82f6; margin-top: 4px;">${escapeHTML(p.number)}</div>
+          <div style="font-size: 10.5px; color: #64748b; margin-top: 6px; line-height: 1.7;">
+            <span style="font-weight: 600;">Tarih:</span> ${dateStr}<br>
+            <span style="font-weight: 600;">Geçerlilik:</span> ${validUntilStr}
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #f1f5f9; padding: 6px 16px; border-radius: 5px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px;">
+        <div style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; white-space: nowrap;">SAYIN / FATURA ALICISI</div>
+        <div style="font-size: 15px; font-weight: 700; color: #0f172a;">${escapeHTML(client.name)}</div>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; font-size: 11.5px;">
+        <thead>
+          <tr style="background: #0f172a; color: #ffffff;">
+            <th style="padding: 9px 10px; text-align: center; width: 30px;">#</th>
+            <th style="padding: 9px 10px; text-align: left;">ÜRÜN / HİZMET TANIMI</th>
+            <th style="padding: 9px 10px; text-align: center; width: 70px;">MİKTAR</th>
+            <th style="padding: 9px 10px; text-align: right; width: 110px;">BİRİM FİYAT</th>
+            <th style="padding: 9px 10px; text-align: center; width: 55px;">KDV</th>
+            <th style="padding: 9px 10px; text-align: right; width: 120px;">TOPLAM</th>
+          </tr>
+        </thead>
+        <tbody>${itemRowsHTML}</tbody>
+      </table>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+        <table style="width: 300px; border-collapse: collapse; font-size: 11.5px;">
+          <tr>
+            <td style="padding: 5px 10px; color: #64748b;">Ara Toplam:</td>
+            <td style="padding: 5px 10px; text-align: right;">&#8378; ${totals.subtotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+          </tr>
+          ${discountRow}
+          <tr>
+            <td style="padding: 5px 10px; color: #64748b;">KDV Toplamı:</td>
+            <td style="padding: 5px 10px; text-align: right;">&#8378; ${totals.vatTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+          </tr>
+          <tr style="background: #0f172a; color: #ffffff; font-size: 13px; font-weight: 700;">
+            <td style="padding: 9px 12px; border-radius: 4px 0 0 4px;">GENEL TOPLAM:</td>
+            <td style="padding: 9px 12px; text-align: right; border-radius: 0 4px 4px 0;">&#8378; ${totals.grandTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+          </tr>
+        </table>
+      </div>
+
+      ${termsHTML}
+
+      <div style="margin-top: 36px; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+        <div style="font-size: 10px; color: #94a3b8;">
+          Bu belge proforma fatura niteliğindedir.<br>Yasal fatura değildir.
+        </div>
+        <div style="text-align: center;">
+          <div style="width: 200px; border-bottom: 1.5px solid #1e293b; margin: 0 auto 8px auto;"></div>
+          <div style="font-size: 11px; font-weight: 700; color: #1e293b;">${escapeHTML(company.name)}</div>
+          <div style="font-size: 10px; color: #64748b;">Kaşe / Yetkili İmza</div>
+        </div>
+      </div>
+
+      <div style="height: 2px; background: linear-gradient(90deg, #1e293b 60%, #3b82f6 100%); margin-top: 20px; border-radius: 2px;"></div>
+    </div>`;
+}
+
 window.viewProposalPDF = viewProposalPDF;
+window.viewProformaPDF = viewProformaPDF;
 window.setPdfTemplate = setPdfTemplate;
 window.setPdfWatermarkToggle = setPdfWatermarkToggle;
 window.setPdfConvertToTRY = setPdfConvertToTRY;

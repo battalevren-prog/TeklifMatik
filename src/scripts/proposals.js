@@ -301,6 +301,16 @@ function openProposalBuilder(proposalId = null) {
     }
   }
 
+  // Reset proforma-specific UI for normal proposals
+  window.currentEditingIsProforma = false;
+  const currencySel = document.getElementById('builder-currency');
+  if (currencySel) currencySel.disabled = false;
+  const currNote = document.getElementById('proforma-currency-note');
+  if (currNote) currNote.style.display = 'none';
+  const colHeader = document.getElementById('col-invoice-name');
+  if (colHeader) colHeader.style.display = 'none';
+  document.querySelectorAll('.proforma-only-col').forEach(td => td.style.display = 'none');
+
   recalculateBuilderTotals();
   switchTab('view-proposal-builder');
 }
@@ -475,10 +485,15 @@ function addProposalItemRow(data = {}) {
   detailTr.style.display = hasDetail ? 'table-row' : 'none';
   detailTr.style.background = 'rgba(0, 0, 0, 0.12)';
 
+  const isProformaMode = !!window.currentEditingIsProforma;
+
   tr.innerHTML = `
     <td style="position: relative;">
       <input type="text" class="form-control item-title" autocomplete="off" value="${escapeHTML(data.title || '')}" placeholder="Hizmet veya ürün yazın (jokere * uygundur)..." oninput="handleCustomItemSearch(this); recalculateBuilderTotals()" onfocus="handleCustomItemSearch(this)" onkeydown="handleCustomItemKeyDown(event, this)">
       <div class="item-autocomplete-dropdown"></div>
+    </td>
+    <td class="proforma-only-col" style="width: 140px; display: ${isProformaMode ? 'table-cell' : 'none'};">
+      <input type="text" class="form-control item-invoice-name" value="${escapeHTML(data.invoiceName || '')}" placeholder="Fatura adı (opsiyonel)">
     </td>
     <td style="width: 100px;">
       <select class="form-control item-unit" onchange="recalculateBuilderTotals()">
@@ -950,9 +965,12 @@ function saveCurrentProposal() {
         image = (imgPreview && imgPreview.style.display !== 'none') ? imgPreview.src : '';
       }
 
+      const invoiceName = tr.querySelector('.item-invoice-name')?.value.trim() || '';
+
       items.push({
         id: 'item_' + (i + 1),
         title,
+        invoiceName,
         description,
         image,
         unit: tr.querySelector('.item-unit').value,

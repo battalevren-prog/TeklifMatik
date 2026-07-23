@@ -109,7 +109,7 @@ function renderProformasList() {
         <td>${statusSelectHTML}</td>
         <td>
           <div style="display: flex; gap: 4px; flex-wrap: nowrap;">
-            <button class="btn btn-secondary btn-sm btn-icon" onclick="viewProposalPDF('${p.id}')" title="PDF / Yazdır">
+            <button class="btn btn-secondary btn-sm btn-icon" onclick="viewProformaPDF('${p.id}')" title="PDF / Yazdır">
               <i class="ri-file-pdf-line"></i>
             </button>
             <button class="btn btn-secondary btn-sm btn-icon" onclick="editProforma('${p.id}')" title="Düzenle">
@@ -156,7 +156,24 @@ function openProformaBuilder(proformaId = null) {
   
   // Tag current editing as proforma
   window.currentEditingIsProforma = true;
+
+  // Lock currency to TRY
+  const currencySelect = document.getElementById('builder-currency');
+  if (currencySelect) {
+    currencySelect.value = 'TRY';
+    currencySelect.disabled = true;
+  }
+  const currencyNote = document.getElementById('proforma-currency-note');
+  if (currencyNote) currencyNote.style.display = 'block';
+
+  // Show Fatura Adı column header
+  const colHeader = document.getElementById('col-invoice-name');
+  if (colHeader) colHeader.style.display = 'table-cell';
+
+  // Show invoice name cells on existing rows
+  document.querySelectorAll('.proforma-only-col').forEach(td => td.style.display = 'table-cell');
 }
+
 
 function editProforma(id) {
   window.openProposalBuilder(id);

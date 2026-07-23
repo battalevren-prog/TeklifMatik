@@ -346,7 +346,7 @@
                 <input type="date" id="builder-valid-until" class="form-control">
               </div>
 
-              <div class="form-group">
+              <div class="form-group" id="builder-currency-group">
                 <label>Para Birimi</label>
                 <select id="builder-currency" class="form-control" onchange="recalculateBuilderTotals()">
                   <option value="TRY">TRY (₺)</option>
@@ -354,6 +354,7 @@
                   <option value="EUR">EUR (€)</option>
                   <option value="GBP">GBP (£)</option>
                 </select>
+                <small id="proforma-currency-note" style="display:none; color: var(--text-muted); font-size: 0.75rem; margin-top: 4px;">Proforma faturalar yalnızca TL (₺) ile oluşturulabilir.</small>
               </div>
 
               <div class="form-group">
@@ -390,6 +391,7 @@
                   <thead>
                     <tr>
                       <th>Açıklama / Hizmet Detayı</th>
+                      <th id="col-invoice-name" style="display:none;">Fatura Adı</th>
                       <th>Birim</th>
                       <th>Miktar</th>
                       <th>Birim Fiyat</th>
