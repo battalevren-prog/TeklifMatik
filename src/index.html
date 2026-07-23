@@ -750,8 +750,8 @@
   </div>
 
   <!-- Catalog Picker Modal (for Proposal Builder) -->
-  <div class="modal" id="catalog-picker-modal">
-    <div class="modal-content" style="max-width: 720px; width: 90%;">
+  <div class="modal-overlay" id="catalog-picker-modal">
+    <div class="modal-card" style="max-width: 760px; width: 95%;">
       <div class="modal-header">
         <div class="modal-title">
           <i class="ri-price-tag-3-line"></i> Katalogdan Ürün Seç
@@ -759,8 +759,13 @@
         <button class="modal-close" onclick="closeCatalogPickerModal()">&times;</button>
       </div>
 
-      <div style="margin-bottom: 16px;">
-        <input type="text" id="catalog-picker-search" class="form-control" placeholder="Ürün veya hizmet ara..." oninput="renderCatalogPickerList()">
+      <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+        <input type="text" id="catalog-picker-search" class="form-control" placeholder="Ürün veya hizmet ara..." oninput="renderCatalogPickerList()" style="flex: 1; min-width: 200px;">
+        <select id="catalog-picker-type" class="form-control" style="width: 180px;" onchange="renderCatalogPickerList()">
+          <option value="all">Tüm Kategoriler</option>
+          <option value="product">Fiziksel Ürünler</option>
+          <option value="service">Hizmet & Danışmanlık</option>
+        </select>
       </div>
 
       <div class="data-table-container" style="max-height: 380px; overflow-y: auto;">

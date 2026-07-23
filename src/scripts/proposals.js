@@ -393,14 +393,21 @@ function closeCatalogPickerModal() {
 
 function renderCatalogPickerList() {
   const catalog = window.DB.getCatalog();
-  const search = (document.getElementById('catalog-picker-search')?.value || '').toLowerCase();
+  const search = (document.getElementById('catalog-picker-search')?.value || '').toLowerCase().trim();
+  const typeFilter = document.getElementById('catalog-picker-type')?.value || 'all';
 
-  const filtered = catalog.filter(c => c.title.toLowerCase().includes(search));
+  const filtered = catalog.filter(c => {
+    const matchesSearch = c.title.toLowerCase().includes(search) ||
+      (c.description && c.description.toLowerCase().includes(search));
+    const matchesType = typeFilter === 'all' || (c.type || 'product') === typeFilter;
+    return matchesSearch && matchesType;
+  });
+
   const tbody = document.getElementById('catalog-picker-tbody');
   if (!tbody) return;
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">Ürün bulunamadı.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 28px;">Arama kriterlerine uygun ürün veya hizmet bulunamadı.</td></tr>`;
     return;
   }
 
@@ -411,12 +418,19 @@ function renderCatalogPickerList() {
       : `<span class="badge" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3);">Ürün</span>`;
     const currSym = window.getCurrencySymbol ? window.getCurrencySymbol(item.currency || 'TRY') : '₺';
 
+    const descSnippet = item.description 
+      ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 280px;">${escapeHTML(item.description)}</div>`
+      : '';
+
     return `
       <tr>
         <td>
           <div style="display: flex; align-items: center; gap: 8px;">
             ${typeBadge}
-            <strong>${escapeHTML(item.title)}</strong>
+            <div>
+              <strong>${escapeHTML(item.title)}</strong>
+              ${descSnippet}
+            </div>
           </div>
         </td>
         <td><span class="badge badge-draft">${escapeHTML(item.unit || 'Adet')}</span></td>
