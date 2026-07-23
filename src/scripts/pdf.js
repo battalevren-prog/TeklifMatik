@@ -192,15 +192,9 @@ function renderPDFDocument() {
         </div>
 
         <!-- Client info -->
-        <div style="background: #f8fafc; padding: 14px; border-radius: 6px; margin-bottom: 24px; border-left: 3px solid #0f172a;">
-          <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; tracking: 1px;">SAYIN / MÜŞTERİ</div>
-          <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-top: 2px;">${escapeHTML(client.name)}</div>
-          <div style="font-size: 11px; color: #475569; margin-top: 4px; line-height: 1.4;">
-            ${client.contactPerson ? `<strong>Yetkili:</strong> ${escapeHTML(client.contactPerson)}<br>` : ''}
-            ${client.address ? `${escapeHTML(client.address)}<br>` : ''}
-            ${client.phone ? `Tel: ${escapeHTML(client.phone)} ` : ''} ${client.email ? `| ${escapeHTML(client.email)}` : ''}
-            ${client.taxNo ? `<br>Vergi D.: ${escapeHTML(client.taxOffice || '')} - V.No: ${escapeHTML(client.taxNo)}` : ''}
-          </div>
+        <div style="display: inline-block; background: #f8fafc; padding: 8px 16px; border-radius: 6px; margin-bottom: 20px; border-left: 3px solid #0f172a;">
+          <div style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">SAYIN / M&#220;&#350;TER&#304;</div>
+          <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-top: 2px;">${escapeHTML(client.name)}</div>
         </div>
 
         <!-- Table -->
@@ -407,16 +401,10 @@ function renderPDFDocument() {
         </div>
 
         <!-- Client Section -->
-        <div class="pdf-client-section">
-          <div class="pdf-client-box">
-            <h4>TEKLİF SUNULAN MÜŞTERİ / FİRMA</h4>
-            <div class="pdf-client-name">${escapeHTML(client.name)}</div>
-            <div class="pdf-client-details">
-              ${client.contactPerson ? `<strong>Yetkili:</strong> ${escapeHTML(client.contactPerson)}<br>` : ''}
-              ${client.address ? `${escapeHTML(client.address)}<br>` : ''}
-              ${client.phone ? `Tel: ${escapeHTML(client.phone)} ` : ''} ${client.email ? `| E-posta: ${escapeHTML(client.email)}` : ''}
-              ${client.taxNo ? `<br>Vergi D.: ${escapeHTML(client.taxOffice || '')} - V.No: ${escapeHTML(client.taxNo)}` : ''}
-            </div>
+        <div style="margin-bottom: 16px;">
+          <div style="display: inline-block; background: var(--pdf-accent, #3b82f6); background: rgba(59,130,246,0.07); border-left: 3px solid var(--pdf-accent, #3b82f6); padding: 7px 16px; border-radius: 4px;">
+            <div style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">TEKL&#304;F SUNULAN M&#220;&#350;TER&#304;</div>
+            <div class="pdf-client-name" style="font-size: 15px; font-weight: 700; margin-top: 2px;">${escapeHTML(client.name)}</div>
           </div>
         </div>
 
