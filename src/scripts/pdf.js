@@ -11,7 +11,7 @@ let currentPdfConvertToTRY = false;
  * Builds a TRY conversion summary HTML block for use inside PDF templates.
  * Returns empty string when conversion is disabled or currency is already TRY.
  */
-function buildTRYConversionHTML(p, totals, accentColor) {
+function buildTRYConversionHTML(p, totals) {
   if (!currentPdfConvertToTRY) return '';
   const currency = p.currency || 'TRY';
   if (currency === 'TRY') return '';
@@ -19,24 +19,24 @@ function buildTRYConversionHTML(p, totals, accentColor) {
   const rates = (window.CurrencyEngine && window.CurrencyEngine.cachedRates) || {};
   const rateToTRY = rates[currency];
   if (!rateToTRY || rateToTRY <= 0) {
-    return `
-      <div style="margin-top: 10px; padding: 8px 12px; border-radius: 6px; background: rgba(245,158,11,0.08); border: 1px dashed #f59e0b; font-size: 10px; color: #92400e;">
-        <strong>&#9888; TL Kar&#351;&#305;l&#305;&#287;&#305;:</strong> Kur bilgisi bulunamad&#305;. Kur G&#252;ncelle butonuna bas&#305;n.
-      </div>`;
+    return `<tr><td colspan="2" style="padding: 8px; font-size: 10px; color: #92400e; background: rgba(245,158,11,0.08); border-top: 1px dashed #f59e0b;">
+      &#9888; TL kar&#351;&#305;l&#305;&#287;&#305; i&#231;in Kur G&#252;ncelle butonuna bas&#305;n.
+    </td></tr>`;
   }
 
   const rateDate = (window.CurrencyEngine && window.CurrencyEngine.lastFetchedDate) || '';
   const grandTotalTRY = totals.grandTotal * rateToTRY;
 
   return `
-    <div style="margin-top: 10px; padding: 8px 14px; border-radius: 6px; background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.25); display: flex; justify-content: space-between; align-items: center; gap: 12px;">
-      <div style="font-size: 10px; color: #475569; white-space: nowrap;">
-        &#8378; TL Kar&#351;&#305;l&#305;&#287;&#305; <span style="color: #94a3b8;">(1 ${currency} = ${rateToTRY.toLocaleString('tr-TR', { minimumFractionDigits: 4 })} &#8378;${rateDate ? ' &middot; ' + rateDate : ''})</span>
-      </div>
-      <div style="font-size: 13px; font-weight: 700; color: #1e40af; white-space: nowrap;">
+    <tr style="background: rgba(59,130,246,0.05); border-top: 1px solid rgba(59,130,246,0.2);">
+      <td style="padding: 7px 10px; font-size: 10px; color: #475569;">
+        &#8378; TL Kar&#351;&#305;l&#305;&#287;&#305;
+        <span style="color: #94a3b8; font-size: 9.5px;">&nbsp;(1 ${currency} = ${rateToTRY.toLocaleString('tr-TR', { minimumFractionDigits: 4 })} &#8378;${rateDate ? ' &middot; ' + rateDate : ''})</span>
+      </td>
+      <td class="text-right" style="padding: 7px 10px; font-size: 12px; font-weight: 700; color: #1e40af; white-space: nowrap;">
         &#8378; ${grandTotalTRY.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
-      </div>
-    </div>`;
+      </td>
+    </tr>`;
 }
 
 
@@ -241,8 +241,8 @@ function renderPDFDocument() {
               <td>GENEL TOPLAM:</td>
               <td class="text-right">${currSymbol} ${totals.grandTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
             </tr>
+            ${buildTRYConversionHTML(p, totals)}
           </table>
-          ${buildTRYConversionHTML(p, totals, '#0f172a')}
         </div>
 
         <!-- Notes -->
@@ -354,8 +354,8 @@ function renderPDFDocument() {
                 <td>GENEL TOPLAM:</td>
                 <td class="text-right">${currSymbol} ${totals.grandTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
               </tr>
+              ${buildTRYConversionHTML(p, totals)}
             </table>
-            ${buildTRYConversionHTML(p, totals, accentColor)}
           </div>
 
           <!-- Notes -->
@@ -458,8 +458,8 @@ function renderPDFDocument() {
               <td>GENEL TOPLAM:</td>
               <td class="text-right">${currSymbol} ${totals.grandTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
             </tr>
+            ${buildTRYConversionHTML(p, totals)}
           </table>
-          ${buildTRYConversionHTML(p, totals, '#0f172a')}
         </div>
 
         <!-- Notes & Bank Info -->
