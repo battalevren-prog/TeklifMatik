@@ -70,11 +70,8 @@
       <header class="top-header">
         <div class="header-title" id="header-title-text">Ana Sayfa & Özet</div>
         <div class="header-actions">
-          <button type="button" class="btn btn-secondary btn-sm" onclick="handleImportBackup()" title="Yedek İçe Aktar">
-            <i class="ri-upload-cloud-line"></i> Yedek Yükle
-          </button>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="handleExportBackup()" title="Yedek Dışa Aktar">
-            <i class="ri-download-cloud-line"></i> Yedek Al
+          <button type="button" class="btn btn-secondary btn-sm" onclick="fetchAndDisplayTCMBRates()" title="TCMB Canlı Döviz Kurlarını Güncelle">
+            <i class="ri-refresh-line"></i> Kur Güncelle
           </button>
           <button type="button" class="btn btn-primary" onclick="openProposalBuilder()">
             <i class="ri-add-line"></i> Yeni Teklif
@@ -711,6 +708,26 @@
                   Son Güncelleme: -
                 </span>
               </div>
+            </div>
+          </div>
+
+          <!-- Backup & Restore Management Panel -->
+          <div class="glass-panel" style="margin-top: 24px;">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="ri-database-2-line"></i> Sistem Veri Yedeği (Yedek Alma & Yükleme)
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="handleImportBackup()" title="Yedek İçe Aktar">
+                  <i class="ri-upload-cloud-line"></i> Yedek Yükle
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="handleExportBackup()" title="Yedek Dışa Aktar">
+                  <i class="ri-download-cloud-line"></i> Yedek Al
+                </button>
+              </div>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Tüm müşterilerinizi, tekliflerinizi ve ürün/hizmet kataloğunuzu JSON formatında bilgisayarınıza yedekleyebilir veya daha önce aldığınız bir yedeği sisteme geri yükleyebilirsiniz.
             </div>
           </div>
         </section>
