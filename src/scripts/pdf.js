@@ -192,9 +192,9 @@ function renderPDFDocument() {
         </div>
 
         <!-- Client info -->
-        <div style="display: inline-block; background: #f8fafc; padding: 8px 16px; border-radius: 6px; margin-bottom: 20px; border-left: 3px solid #0f172a;">
+        <div style="background: #f8fafc; padding: 6px 16px; border-radius: 6px; margin-bottom: 20px; border-left: 3px solid #0f172a;">
           <div style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">SAYIN / M&#220;&#350;TER&#304;</div>
-          <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-top: 2px;">${escapeHTML(client.name)}</div>
+          <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-top: 1px;">${escapeHTML(client.name)}</div>
         </div>
 
         <!-- Table -->
@@ -401,10 +401,10 @@ function renderPDFDocument() {
         </div>
 
         <!-- Client Section -->
-        <div style="margin-bottom: 16px;">
-          <div style="display: inline-block; background: var(--pdf-accent, #3b82f6); background: rgba(59,130,246,0.07); border-left: 3px solid var(--pdf-accent, #3b82f6); padding: 7px 16px; border-radius: 4px;">
+        <div style="margin-bottom: 14px;">
+          <div style="background: rgba(59,130,246,0.07); border-left: 3px solid var(--pdf-accent, #3b82f6); padding: 5px 16px; border-radius: 4px;">
             <div style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">TEKL&#304;F SUNULAN M&#220;&#350;TER&#304;</div>
-            <div class="pdf-client-name" style="font-size: 15px; font-weight: 700; margin-top: 2px;">${escapeHTML(client.name)}</div>
+            <div class="pdf-client-name" style="font-size: 15px; font-weight: 700; margin-top: 1px;">${escapeHTML(client.name)}</div>
           </div>
         </div>
 
