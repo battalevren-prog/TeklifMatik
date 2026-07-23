@@ -14,7 +14,7 @@
 .pdf-document {
   width: 210mm;
   min-height: 297mm;
-  padding: 20mm 18mm;
+  padding: 16mm 16mm;
   background: #ffffff;
   color: #1e293b;
   font-family: 'Inter', sans-serif;
@@ -25,6 +25,7 @@
   box-sizing: border-box;
   font-size: 13px;
   line-height: 1.5;
+  position: relative !important;
 }
 
 /* Header Section */
@@ -33,12 +34,14 @@
   justify-content: space-between;
   align-items: flex-start;
   border-bottom: 2px solid var(--pdf-accent, #3b82f6);
-  padding-bottom: 20px;
-  margin-bottom: 25px;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .pdf-company-info {
-  max-width: 320px;
+  max-width: 340px;
 }
 
 .pdf-logo {
@@ -93,8 +96,10 @@
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 16px 20px;
-  margin-bottom: 25px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .pdf-client-box h4 {
@@ -123,13 +128,13 @@
 .pdf-items-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
 .pdf-items-table th {
   background-color: var(--pdf-accent, #3b82f6);
   color: #ffffff;
-  padding: 10px 12px;
+  padding: 9px 12px;
   font-size: 12px;
   font-weight: 600;
   text-align: left;
@@ -146,10 +151,15 @@
 }
 
 .pdf-items-table td {
-  padding: 12px;
+  padding: 10px 12px;
   border-bottom: 1px solid #e2e8f0;
   color: #1e293b;
-  font-size: 12.5px;
+  font-size: 12px;
+}
+
+.pdf-items-table tr {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
 }
 
 .pdf-items-table tbody tr:nth-child(even) {
@@ -160,11 +170,13 @@
 .pdf-totals-container {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
 }
 
 .pdf-totals-table {
-  width: 320px;
+  width: 340px;
   border-collapse: collapse;
 }
 
@@ -176,17 +188,21 @@
 
 .pdf-totals-table tr.total-row td {
   border-top: 2px solid #0f172a;
-  font-size: 16px;
+  border-bottom: 2px solid #0f172a;
+  font-size: 15px;
   font-weight: 700;
   color: #0f172a;
-  padding-top: 10px;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 /* Notes & Bank Details */
 .pdf-notes-section {
   border-top: 1px solid #e2e8f0;
-  padding-top: 15px;
+  padding-top: 14px;
   margin-bottom: 20px;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
 }
 
 .pdf-notes-title {
@@ -208,12 +224,14 @@
 .pdf-footer {
   margin-top: auto;
   border-top: 1px solid #cbd5e1;
-  padding-top: 15px;
+  padding-top: 14px;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   font-size: 11px;
   color: #94a3b8;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
 }
 
 .pdf-signature-box {
@@ -223,11 +241,22 @@
 
 .pdf-signature-line {
   border-bottom: 1px solid #94a3b8;
-  height: 40px;
+  height: 35px;
   margin-bottom: 6px;
 }
 
-/* Pure Print Mode Rule */
+/* Page Break Protection & Executive Cover Page */
+.pdf-cover-page {
+  page-break-after: always !important;
+  break-after: page !important;
+}
+
+/* Pure Print Mode Rules */
+@page {
+  size: A4 portrait;
+  margin: 10mm 10mm;
+}
+
 @media print {
   body * {
     visibility: hidden;
@@ -240,21 +269,30 @@
   }
 
   .pdf-preview-wrapper {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    padding: 0;
-    background: transparent;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
   }
 
   .pdf-document {
-    width: 100%;
-    box-shadow: none;
-    padding: 10mm;
+    width: 100% !important;
+    min-height: auto !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
   }
 
   .no-print {
     display: none !important;
+  }
+
+  .pdf-cover-page {
+    height: 275mm !important;
+    box-sizing: border-box !important;
   }
 }

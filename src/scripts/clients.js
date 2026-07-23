@@ -6,12 +6,12 @@ let editingClientId = null;
 
 function renderClientsList() {
   const clients = window.DB.getClients();
-  const search = (document.getElementById('client-search-input')?.value || '').toLowerCase();
+  const search = document.getElementById('client-search-input')?.value || '';
 
   const filtered = clients.filter(c => 
-    c.name.toLowerCase().includes(search) || 
-    (c.contactPerson || '').toLowerCase().includes(search) ||
-    (c.taxNo || '').includes(search)
+    window.matchSearchPattern(c.name, search) || 
+    window.matchSearchPattern(c.contactPerson, search) ||
+    window.matchSearchPattern(c.taxNo, search)
   );
 
   const tbody = document.getElementById('clients-table-tbody');
@@ -25,7 +25,8 @@ function renderClientsList() {
   const proposals = window.DB.getProposals();
 
   tbody.innerHTML = filtered.map(c => {
-    const clientProposalsCount = proposals.filter(p => p.clientId === c.id).length;
+    const clientProposals = proposals.filter(p => p.clientId === c.id);
+    const clientProposalsCount = clientProposals.length;
 
     return `
       <tr>
@@ -33,7 +34,11 @@ function renderClientsList() {
         <td>${escapeHTML(c.contactPerson || '-')}</td>
         <td>${escapeHTML(c.phone || '-')}</td>
         <td>${escapeHTML(c.email || '-')}</td>
-        <td><span class="badge badge-draft">${clientProposalsCount} Teklif</span></td>
+        <td>
+          <button class="btn btn-secondary btn-sm" onclick="viewClientHistoryModal('${c.id}')">
+            <i class="ri-history-line"></i> ${clientProposalsCount} Teklif
+          </button>
+        </td>
         <td>
           <div style="display: flex; gap: 6px;">
             <button class="btn btn-secondary btn-sm btn-icon" onclick="openClientModal('${c.id}')" title="Düzenle">
@@ -47,6 +52,105 @@ function renderClientsList() {
       </tr>
     `;
   }).join('');
+}
+
+function viewClientHistoryModal(clientId) {
+  const clients = window.DB.getClients();
+  const client = clients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const proposals = window.DB.getProposals().filter(p => p.clientId === clientId);
+
+  const modal = document.getElementById('client-history-modal');
+  const title = document.getElementById('client-history-title');
+  const body = document.getElementById('client-history-body');
+
+  if (title) title.textContent = `Müşteri Geçmişi: ${client.name}`;
+
+  if (body) {
+    if (proposals.length === 0) {
+      body.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 24px;">Bu müşteriye ait henüz hiç teklif bulunmuyor.</div>`;
+    } else {
+      let totalApprovedVal = 0;
+      const rowsHTML = proposals.map(p => {
+        const totals = calculateProposalTotals(p);
+        if (p.status === 'approved' || p.status === 'invoiced') {
+          totalApprovedVal += totals.grandTotal;
+        }
+        const currSym = getCurrencySymbol(p.currency);
+        return `
+          <tr>
+            <td><strong>${p.number}</strong></td>
+            <td>${new Date(p.date).toLocaleDateString('tr-TR')}</td>
+            <td><strong>${currSym} ${totals.grandTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</strong></td>
+            <td>${getStatusBadgeHTML(p.status)}</td>
+            <td style="text-align: right;">
+              <button class="btn btn-secondary btn-sm btn-icon" onclick="closeClientHistoryModal(); viewProposalPDF('${p.id}');" title="PDF Görüntüle">
+                <i class="ri-file-pdf-line"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      body.innerHTML = `
+        <div style="margin-bottom: 16px; padding: 12px; background: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--primary-color); border-radius: 4px;">
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Onaylanan / Faturalandırılan Toplam Hacim:</div>
+          <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">
+            ${totalApprovedVal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Teklif No</th>
+              <th>Tarih</th>
+              <th>Tutar</th>
+              <th>Durum</th>
+              <th style="text-align: right;">İşlem</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHTML}
+          </tbody>
+        </table>
+      `;
+    }
+  }
+
+  modal?.classList.add('active');
+}
+
+function closeClientHistoryModal() {
+  document.getElementById('client-history-modal')?.classList.remove('active');
+}
+
+function exportClientsToExcel() {
+  const clients = window.DB.getClients();
+  if (clients.length === 0) {
+    window.showToast('Aktarılacak müşteri bulunamadı.', 'info');
+    return;
+  }
+
+  const exportData = clients.map(c => ({
+    'Firma / Müşteri Adı': c.name,
+    'Yetkili Kişi': c.contactPerson || '',
+    'Telefon': c.phone || '',
+    'E-posta': c.email || '',
+    'Vergi Dairesi': c.taxOffice || '',
+    'Vergi No': c.taxNo || '',
+    'Adres': c.address || ''
+  }));
+
+  if (window.XLSX) {
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Müşteriler');
+    XLSX.writeFile(wb, `TeklifMatik_Musteriler_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    window.showToast('Müşteriler Excel dosyası olarak indirildi.', 'success');
+  } else {
+    window.showToast('Excel kütüphanesi yüklenemedi.', 'error');
+  }
 }
 
 function openClientModal(id = null) {
@@ -78,7 +182,7 @@ function openClientModal(id = null) {
     document.getElementById('modal-client-address').value = '';
   }
 
-  modal.classList.add('active');
+  modal?.classList.add('active');
 }
 
 function closeClientModal() {
@@ -126,3 +230,6 @@ window.openClientModal = openClientModal;
 window.closeClientModal = closeClientModal;
 window.saveClientForm = saveClientForm;
 window.confirmDeleteClient = confirmDeleteClient;
+window.exportClientsToExcel = exportClientsToExcel;
+window.viewClientHistoryModal = viewClientHistoryModal;
+window.closeClientHistoryModal = closeClientHistoryModal;

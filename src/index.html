@@ -34,6 +34,10 @@
           <i class="ri-file-list-3-line"></i>
           <span>Teklifler</span>
         </a>
+        <a href="#" class="nav-item" data-view="view-proformas-list">
+          <i class="ri-file-text-line"></i>
+          <span>Proforma Faturalar</span>
+        </a>
         <a href="#" class="nav-item" data-view="view-clients-list">
           <i class="ri-contacts-book-2-line"></i>
           <span>Müşteriler</span>
@@ -165,9 +169,14 @@
               <div class="panel-title">
                 <i class="ri-file-list-3-line"></i> Tüm Teklifler Listesi
               </div>
-              <div style="display: flex; gap: 12px; flex: 1; max-width: 500px;">
-                <input type="text" id="proposal-search-input" class="form-control" placeholder="Teklif no veya müşteri ara..." oninput="renderProposalsList()">
-                <select id="proposal-status-filter" class="form-control" style="width: 160px;" onchange="renderProposalsList()">
+              <div style="display: flex; gap: 12px; flex: 1; max-width: 800px; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="proposal-search-input" class="form-control" placeholder="Teklif no veya müşteri ara..." oninput="renderProposalsList()" style="min-width: 200px;">
+                <select id="proposal-company-filter" class="form-control" style="width: 150px;" onchange="renderProposalsList()">
+                  <option value="all">Tüm Firmalar</option>
+                  <option value="comp_1">1. Firma</option>
+                  <option value="comp_2">2. Firma</option>
+                </select>
+                <select id="proposal-status-filter" class="form-control" style="width: 140px;" onchange="renderProposalsList()">
                   <option value="all">Tüm Durumlar</option>
                   <option value="draft">Taslak</option>
                   <option value="sent">Gönderildi</option>
@@ -175,6 +184,9 @@
                   <option value="rejected">Reddedildi</option>
                   <option value="invoiced">Faturalandı</option>
                 </select>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="exportProposalsToExcel()" title="Teklifleri Excel olarak indir">
+                  <i class="ri-file-excel-2-line"></i> Excel İndir
+                </button>
               </div>
             </div>
 
@@ -199,6 +211,94 @@
           </div>
         </section>
 
+        <!-- 2.5 PROFORMAS LIST VIEW -->
+        <section id="view-proformas-list" class="view-section">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="ri-file-text-line"></i> Proforma Fatura Yönetimi
+              </div>
+              <button type="button" class="btn btn-primary" onclick="openProformaBuilder()">
+                <i class="ri-add-line"></i> Yeni Proforma Oluştur
+              </button>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 20px;">
+              <div class="stat-card">
+                <div class="stat-icon primary"><i class="ri-file-text-line"></i></div>
+                <div class="stat-info">
+                  <div class="stat-label">Toplam Proforma</div>
+                  <div class="stat-value" id="proforma-stat-total">0</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon warning"><i class="ri-time-line"></i></div>
+                <div class="stat-info">
+                  <div class="stat-label">Bekleyen / Taslak</div>
+                  <div class="stat-value" id="proforma-stat-pending">0</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon success"><i class="ri-checkbox-circle-line"></i></div>
+                <div class="stat-info">
+                  <div class="stat-label">Onaylanan / Faturalanan</div>
+                  <div class="stat-value" id="proforma-stat-approved">0</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon purple"><i class="ri-money-dollar-circle-line"></i></div>
+                <div class="stat-info">
+                  <div class="stat-label">Toplam Tutar (TRY)</div>
+                  <div class="stat-value" id="proforma-stat-value">0 ₺</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-header">
+              <div class="panel-title" style="font-size: 1rem;">
+                <i class="ri-list-check-2"></i> Tüm Proforma Faturalar
+              </div>
+              <div style="display: flex; gap: 12px; flex: 1; max-width: 800px; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="proforma-search-input" class="form-control" placeholder="Proforma no veya müşteri ara (* mevcuttur)..." oninput="renderProformasList()" style="min-width: 200px;">
+                <select id="proforma-company-filter" class="form-control" style="width: 150px;" onchange="renderProformasList()">
+                  <option value="all">Tüm Firmalar</option>
+                </select>
+                <select id="proforma-status-filter" class="form-control" style="width: 140px;" onchange="renderProformasList()">
+                  <option value="all">Tüm Durumlar</option>
+                  <option value="draft">Taslak</option>
+                  <option value="sent">Gönderildi</option>
+                  <option value="approved">Onaylandı</option>
+                  <option value="rejected">Reddedildi</option>
+                  <option value="invoiced">Faturalandı</option>
+                </select>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="exportProformasToExcel()" title="Proformaları Excel olarak indir">
+                  <i class="ri-file-excel-2-line"></i> Excel İndir
+                </button>
+              </div>
+            </div>
+
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Proforma No</th>
+                    <th>Müşteri</th>
+                    <th>Firma Profili</th>
+                    <th>Tarih</th>
+                    <th>Geçerlilik</th>
+                    <th>Genel Toplam</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody id="proformas-table-tbody">
+                  <!-- Dynamic Proforma Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
 
         <!-- 3. PROPOSAL BUILDER / EDIT VIEW -->
         <section id="view-proposal-builder" class="view-section">
@@ -215,6 +315,13 @@
 
             <!-- Main Proposal Fields -->
             <div class="form-grid" style="margin-bottom: 24px;">
+              <div class="form-group">
+                <label>Teklif Veren Firma Profili *</label>
+                <select id="builder-company-select" class="form-control">
+                  <!-- Company Profile Options -->
+                </select>
+              </div>
+
               <div class="form-group">
                 <label>Teklif Numarası *</label>
                 <input type="text" id="builder-proposal-number" class="form-control" placeholder="Örn. TKL-2026-001">
@@ -344,8 +451,11 @@
               <div class="panel-title">
                 <i class="ri-contacts-book-2-line"></i> Müşteri Rehberi
               </div>
-              <div style="display: flex; gap: 12px;">
+              <div style="display: flex; gap: 12px; align-items: center;">
                 <input type="text" id="client-search-input" class="form-control" placeholder="Müşteri adı veya vergi no ara..." oninput="renderClientsList()">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="exportClientsToExcel()" title="Müşterileri Excel olarak indir">
+                  <i class="ri-file-excel-2-line"></i> Excel İndir
+                </button>
                 <button type="button" class="btn btn-primary" onclick="openClientModal()">
                   <i class="ri-user-add-line"></i> Yeni Müşteri Ekle
                 </button>
@@ -464,15 +574,27 @@
 
         <!-- 6. SETTINGS VIEW -->
         <section id="view-settings" class="view-section">
+          <!-- Multi-Company Profile Selection Tabs -->
+          <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary company-settings-tab active" data-company-id="comp_1" onclick="switchCompanySettingsTab('comp_1')">
+              <i class="ri-building-line"></i> 1. Firma Profili (Varsayılan)
+            </button>
+            <button type="button" class="btn btn-secondary company-settings-tab" data-company-id="comp_2" onclick="switchCompanySettingsTab('comp_2')">
+              <i class="ri-building-2-line"></i> 2. Firma Profili (İkinci Firma)
+            </button>
+          </div>
+
           <div class="glass-panel">
             <div class="panel-header">
               <div class="panel-title">
                 <i class="ri-settings-4-line"></i> Firma Profil & Şablon Ayarları
               </div>
               <button type="button" class="btn btn-primary" onclick="saveSettingsForm()">
-                <i class="ri-save-line"></i> Ayarları Kaydet
+                <i class="ri-save-line"></i> Seçili Firma Ayarlarını Kaydet
               </button>
             </div>
+
+            <input type="hidden" id="setting-company-id" value="comp_1">
 
             <div class="form-grid">
               <div class="form-group" style="grid-column: 1 / -1;">
@@ -525,6 +647,20 @@
               <div class="form-group">
                 <label>PDF Renk Vurgusu (Accent Color)</label>
                 <input type="color" id="setting-pdf-color" class="form-control" value="#3b82f6" style="height: 42px; cursor: pointer; padding: 2px;">
+              </div>
+
+              <div class="form-group">
+                <label>Varsayılan PDF Tasarım Şablonu</label>
+                <select id="setting-pdf-template" class="form-control">
+                  <option value="modern">Modern / Kurumsal Şablon</option>
+                  <option value="minimalist">Minimalist / Şık Şablon</option>
+                  <option value="executive">Executive (Kapak Sayfalı)</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 24px;">
+                <input type="checkbox" id="setting-pdf-watermark" style="width: 18px; height: 18px; cursor: pointer;" checked>
+                <label for="setting-pdf-watermark" style="cursor: pointer; margin: 0;">PDF Çıktısında Durum Damgası / Filigran Göster (TASLAK, ONAYLANDI vb.)</label>
               </div>
 
               <div class="form-group" style="grid-column: 1 / -1;">
@@ -582,9 +718,24 @@
 
         <!-- 7. PDF PREVIEW VIEW -->
         <section id="view-pdf-preview" class="view-section">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;" class="no-print">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;" class="no-print">
             <h3 id="pdf-preview-title" style="font-family: 'Outfit', sans-serif;">Teklif Önizleme</h3>
-            <div style="display: flex; gap: 10px;">
+            
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);">Şablon:</label>
+                <select id="pdf-template-select" class="form-control" style="width: 170px;" onchange="setPdfTemplate(this.value)">
+                  <option value="modern">Modern / Kurumsal</option>
+                  <option value="minimalist">Minimalist / Şık</option>
+                  <option value="executive">Executive (Kapaklı)</option>
+                </select>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 6px; margin-right: 8px;">
+                <input type="checkbox" id="pdf-watermark-toggle" checked onchange="setPdfWatermarkToggle(this.checked)">
+                <label for="pdf-watermark-toggle" style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); cursor: pointer;">Damga / Filigran</label>
+              </div>
+
               <button type="button" class="btn btn-secondary" onclick="switchTab('view-proposals-list')">
                 <i class="ri-arrow-left-line"></i> Tekliflere Dön
               </button>
@@ -787,6 +938,26 @@
   </div>
 
 
+  <!-- Client Proposal History Modal -->
+  <div class="modal" id="client-history-modal">
+    <div class="modal-content" style="max-width: 720px; width: 90%;">
+      <div class="modal-header">
+        <div class="modal-title" id="client-history-title">
+          <i class="ri-history-line"></i> Müşteri Teklif Geçmişi
+        </div>
+        <button class="modal-close" onclick="closeClientHistoryModal()">&times;</button>
+      </div>
+
+      <div id="client-history-body" style="max-height: 420px; overflow-y: auto;">
+        <!-- Dynamic content -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <button type="button" class="btn btn-secondary" onclick="closeClientHistoryModal()">Kapat</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Area -->
   <div class="toast-container" id="toast-container"></div>
 
@@ -794,9 +965,12 @@
   <!-- Scripts Integration -->
   <script src="scripts/xlsx.full.min.js"></script>
   <script src="scripts/currency.js"></script>
+  <script src="scripts/search_engine.js"></script>
+  <script src="scripts/seed_data.js"></script>
   <script src="scripts/store.js"></script>
   <script src="scripts/dashboard.js"></script>
   <script src="scripts/proposals.js"></script>
+  <script src="scripts/proformas.js"></script>
   <script src="scripts/clients.js"></script>
   <script src="scripts/catalog.js"></script>
   <script src="scripts/settings.js"></script>

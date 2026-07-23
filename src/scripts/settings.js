@@ -1,9 +1,42 @@
 /**
- * Company & System Settings View Controller
+ * Company & System Settings View Controller (Multi-Company Support)
  */
 
-function loadSettingsForm() {
-  const company = window.DB.getCompany();
+let activeCompanySettingsId = 'comp_1';
+
+function switchCompanySettingsTab(companyId) {
+  activeCompanySettingsId = companyId;
+  
+  document.querySelectorAll('.company-settings-tab').forEach(tab => {
+    if (tab.getAttribute('data-company-id') === companyId) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
+  });
+
+  loadSettingsForm(companyId);
+}
+
+function updateSettingsCompanyTabsUI() {
+  const companies = window.DB.getCompanies ? window.DB.getCompanies() : [];
+  companies.forEach((c) => {
+    const tab = document.querySelector(`.company-settings-tab[data-company-id="${c.id}"]`);
+    if (tab) {
+      const isCurrentActive = tab.getAttribute('data-company-id') === activeCompanySettingsId;
+      tab.innerHTML = `<i class="ri-building-line"></i> ${escapeHTML(c.name)} ${c.isDefault ? '(Varsayılan)' : ''}`;
+      if (isCurrentActive) tab.classList.add('active');
+    }
+  });
+}
+
+function loadSettingsForm(companyId = activeCompanySettingsId) {
+  activeCompanySettingsId = companyId;
+  updateSettingsCompanyTabsUI();
+  const company = window.DB.getCompany(companyId);
+
+  const compIdInput = document.getElementById('setting-company-id');
+  if (compIdInput) compIdInput.value = company.id || 'comp_1';
 
   document.getElementById('setting-company-name').value = company.name || '';
   document.getElementById('setting-company-sub').value = company.subTitle || '';
@@ -16,6 +49,13 @@ function loadSettingsForm() {
   document.getElementById('setting-iban').value = company.iban || '';
   document.getElementById('setting-notes').value = company.notes || '';
   document.getElementById('setting-pdf-color').value = company.pdfAccentColor || '#3b82f6';
+  
+  if (document.getElementById('setting-pdf-template')) {
+    document.getElementById('setting-pdf-template').value = company.pdfTemplate || 'modern';
+  }
+  if (document.getElementById('setting-pdf-watermark')) {
+    document.getElementById('setting-pdf-watermark').checked = company.pdfShowWatermark !== false;
+  }
 
   const logoPreview = document.getElementById('setting-logo-preview');
   if (logoPreview) {
@@ -23,6 +63,7 @@ function loadSettingsForm() {
       logoPreview.src = company.logo;
       logoPreview.style.display = 'block';
     } else {
+      logoPreview.src = '';
       logoPreview.style.display = 'none';
     }
   }
@@ -45,6 +86,7 @@ function loadSettingsForm() {
 }
 
 function saveSettingsForm() {
+  const companyId = document.getElementById('setting-company-id')?.value || activeCompanySettingsId;
   const name = document.getElementById('setting-company-name').value.trim();
   if (!name) {
     window.showToast('Firma Unvanı boş olamaz.', 'error');
@@ -55,6 +97,7 @@ function saveSettingsForm() {
   const logoData = logoPreview && logoPreview.style.display !== 'none' ? logoPreview.src : '';
 
   const companyData = {
+    id: companyId,
     name,
     subTitle: document.getElementById('setting-company-sub').value.trim(),
     taxOffice: document.getElementById('setting-tax-office').value.trim(),
@@ -66,6 +109,8 @@ function saveSettingsForm() {
     iban: document.getElementById('setting-iban').value.trim(),
     notes: document.getElementById('setting-notes').value.trim(),
     pdfAccentColor: document.getElementById('setting-pdf-color').value,
+    pdfTemplate: document.getElementById('setting-pdf-template')?.value || 'modern',
+    pdfShowWatermark: document.getElementById('setting-pdf-watermark')?.checked !== false,
     logo: logoData
   };
 
@@ -89,7 +134,10 @@ function saveSettingsForm() {
     window.CurrencyEngine.cachedRates.GBP = gbpRate;
   }
 
-  window.showToast('Firma ayarları ve kurlar başarıyla kaydedildi.', 'success');
+  updateSettingsCompanyTabsUI();
+  if (window.renderProposalsList) window.renderProposalsList();
+
+  window.showToast(`Firma profili kaydedildi: ${name}`, 'success');
 }
 
 async function fetchAndDisplayTCMBRates() {
@@ -140,6 +188,7 @@ function removeLogo() {
 
 window.loadSettingsForm = loadSettingsForm;
 window.saveSettingsForm = saveSettingsForm;
+window.switchCompanySettingsTab = switchCompanySettingsTab;
 window.fetchAndDisplayTCMBRates = fetchAndDisplayTCMBRates;
 window.handleLogoUpload = handleLogoUpload;
 window.removeLogo = removeLogo;
