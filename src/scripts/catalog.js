@@ -8,9 +8,9 @@ function renderCatalogList() {
   const catalog = window.DB.getCatalog();
   
   // Render Products Table
-  const productsSearch = (document.getElementById('products-search-input')?.value || '').toLowerCase();
+  const productsSearch = document.getElementById('products-search-input')?.value || '';
   const products = catalog.filter(cat => 
-    cat.type === 'product' && cat.title.toLowerCase().includes(productsSearch)
+    cat.type === 'product' && window.matchSearchPattern(cat.title, productsSearch)
   );
 
   const getCurrSym = (curr) => window.getCurrencySymbol ? window.getCurrencySymbol(curr) : (curr === 'USD' ? '$' : (curr === 'EUR' ? '€' : '₺'));
@@ -18,7 +18,7 @@ function renderCatalogList() {
   const productsTbody = document.getElementById('products-table-tbody');
   if (productsTbody) {
     if (products.length === 0) {
-      productsTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">Kayıtlı ürün bulunamadı.</td></tr>`;
+      productsTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">Kriterlere uygun ürün bulunamadı.</td></tr>`;
     } else {
       productsTbody.innerHTML = products.map(cat => `
         <tr>
@@ -42,9 +42,9 @@ function renderCatalogList() {
   }
 
   // Render Services Table
-  const servicesSearch = (document.getElementById('services-search-input')?.value || '').toLowerCase();
+  const servicesSearch = document.getElementById('services-search-input')?.value || '';
   const services = catalog.filter(cat => 
-    cat.type === 'service' && cat.title.toLowerCase().includes(servicesSearch)
+    cat.type === 'service' && window.matchSearchPattern(cat.title, servicesSearch)
   );
 
   const servicesTbody = document.getElementById('services-table-tbody');

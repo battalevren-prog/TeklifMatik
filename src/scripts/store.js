@@ -3,9 +3,9 @@
  * Manages JSON data in localStorage with initial seed data
  */
 
-const STORAGE_KEY = 'teklifmatik_db_v1';
+const STORAGE_KEY = 'teklifmatik_db_v3';
 
-const DEFAULT_DB = {
+const DEFAULT_DB = window.INITIAL_DATABASE || {
   company: {
     name: 'TeknoSoft Yazılım ve Danışmanlık A.Ş.',
     subTitle: 'Web, Mobil & Kurumsal Yazılım Çözümleri',
@@ -18,139 +18,13 @@ const DEFAULT_DB = {
     iban: 'TR68 0006 2000 0001 2345 6789 01 - Garanti BBVA',
     notes: '• Fiyatlarımıza KDV dahil değildir.\n• Teklifimiz 15 gün süreyle geçerlidir.\n• %50 ön ödeme sipariş onayında, %50 teslimatta tahsil edilir.',
     logo: '',
-    pdfAccentColor: '#3b82f6'
+    pdfAccentColor: '#3b82f6',
+    pdfTemplate: 'modern',
+    pdfShowWatermark: true
   },
-
-  clients: [
-    {
-      id: 'cli_1',
-      name: 'Atlas Lojistik Dış Ticaret Ltd. Şti.',
-      contactPerson: 'Ahmet Yılmaz (Genel Müdürü)',
-      email: 'ahmet@atlaslojistik.com',
-      phone: '+90 532 111 2233',
-      taxOffice: 'Mecidiyeköy V.D.',
-      taxNo: '1234567890',
-      address: 'Gülbahar Mah. Avni Dilligil Sok. No:12 Şişli / İstanbul'
-    },
-    {
-      id: 'cli_2',
-      name: 'Simya Gıda & Restoran İşletmeleri',
-      contactPerson: 'Ayşe Kaya (Operasyon Direktörü)',
-      email: 'akaya@simyagida.com',
-      phone: '+90 533 444 5566',
-      taxOffice: 'Kadıköy V.D.',
-      taxNo: '9876543210',
-      address: 'Moda Cad. No: 45 Kadıköy / İstanbul'
-    }
-  ],
-
-  catalog: [
-    {
-      id: 'cat_1',
-      title: 'Özel Web Yazılım Geliştirme',
-      type: 'service',
-      unit: 'Proje',
-      unitPrice: 75000,
-      vatRate: 20
-    },
-    {
-      id: 'cat_2',
-      title: 'iOS & Android Mobil Uygulama',
-      type: 'service',
-      unit: 'Proje',
-      unitPrice: 120000,
-      vatRate: 20
-    },
-    {
-      id: 'cat_3',
-      title: 'UI/UX Arayüz & Deneyim Tasarımı',
-      type: 'service',
-      unit: 'Saat',
-      unitPrice: 1500,
-      vatRate: 20
-    },
-    {
-      id: 'cat_4',
-      title: 'Aylık Sunucu & Bakım Destek Paket',
-      type: 'service',
-      unit: 'Ay',
-      unitPrice: 8500,
-      vatRate: 20
-    },
-    {
-      id: 'cat_5',
-      title: 'Endüstriyel El Terminali & Barkod Okuyucu',
-      type: 'product',
-      unit: 'Adet',
-      unitPrice: 14500,
-      vatRate: 20
-    },
-    {
-      id: 'cat_6',
-      title: 'Termal Fiş & Etiket Yazıcı',
-      type: 'product',
-      unit: 'Adet',
-      unitPrice: 6200,
-      vatRate: 20
-    }
-  ],
-
-  proposals: [
-    {
-      id: 'tkl_101',
-      number: 'TKL-2026-001',
-      clientId: 'cli_1',
-      clientName: 'Atlas Lojistik Dış Ticaret Ltd. Şti.',
-      date: '2026-07-20',
-      validUntil: '2026-08-04',
-      currency: 'TRY',
-      status: 'approved', // draft, sent, approved, rejected, invoiced
-      discountRate: 5,
-      items: [
-        {
-          id: 'item_1',
-          title: 'Özel Web Yazılım Geliştirme (Müşteri Portalı)',
-          unit: 'Proje',
-          quantity: 1,
-          unitPrice: 75000,
-          vatRate: 20
-        },
-        {
-          id: 'item_2',
-          title: 'Aylık Sunucu & Bakım Destek Paket',
-          unit: 'Ay',
-          quantity: 6,
-          unitPrice: 8500,
-          vatRate: 20
-        }
-      ],
-      terms: '• Fiyatlarımıza KDV dahil değildir.\n• Teklifimiz 15 gün süreyle geçerlidir.\n• Ödeme %50 peşin, kalan teslimatta.',
-      createdAt: '2026-07-20T10:00:00.000Z'
-    },
-    {
-      id: 'tkl_102',
-      number: 'TKL-2026-002',
-      clientId: 'cli_2',
-      clientName: 'Simya Gıda & Restoran İşletmeleri',
-      date: '2026-07-22',
-      validUntil: '2026-08-06',
-      currency: 'TRY',
-      status: 'sent',
-      discountRate: 0,
-      items: [
-        {
-          id: 'item_3',
-          title: 'iOS & Android Mobil Uygulama (Sipariş Modülü)',
-          unit: 'Proje',
-          quantity: 1,
-          unitPrice: 120000,
-          vatRate: 20
-        }
-      ],
-      terms: '• Fiyatlarımıza KDV dahil değildir.\n• %50 ön ödeme alınacaktır.',
-      createdAt: '2026-07-22T14:30:00.000Z'
-    }
-  ]
+  clients: [],
+  catalog: [],
+  proposals: []
 };
 
 class StorageEngine {
@@ -177,13 +51,61 @@ class StorageEngine {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
   }
 
-  getCompany() {
-    return this.data.company || DEFAULT_DB.company;
+  getCompanies() {
+    if (!this.data.companies || !Array.isArray(this.data.companies) || this.data.companies.length === 0) {
+      const mainComp = this.data.company || DEFAULT_DB.company;
+      const comp1 = {
+        id: 'comp_1',
+        isDefault: true,
+        ...mainComp
+      };
+      const comp2 = {
+        id: 'comp_2',
+        isDefault: false,
+        name: 'İkinci Firma Unvanı Ltd. Şti.',
+        subTitle: 'Danışmanlık ve Hizmet Çözümleri',
+        taxOffice: 'Kadıköy V.D.',
+        taxNo: '1234567890',
+        phone: '+90 (216) 555 0100',
+        email: 'info@ikincifirma.com.tr',
+        website: 'https://ikincifirma.com.tr',
+        address: 'Bağdat Cad. No: 120 Kadıköy / İstanbul',
+        iban: 'TR12 0006 2000 0001 9876 5432 10 - Yapı Kredi',
+        notes: '• Fiyatlarımıza KDV dahil değildir.\n• Teklifimiz 15 gün süreyle geçerlidir.',
+        logo: '',
+        pdfAccentColor: '#10b981',
+        pdfTemplate: 'modern',
+        pdfShowWatermark: true
+      };
+      this.data.companies = [comp1, comp2];
+      this.saveData(this.data);
+    }
+    return this.data.companies;
+  }
+
+  getCompany(id = null) {
+    const companies = this.getCompanies();
+    if (!id) {
+      return companies.find(c => c.isDefault) || companies[0];
+    }
+    return companies.find(c => c.id === id) || companies[0];
   }
 
   saveCompany(companyData) {
-    this.data.company = { ...this.data.company, ...companyData };
+    const id = companyData.id || 'comp_1';
+    const companies = this.getCompanies();
+    const idx = companies.findIndex(c => c.id === id);
+    if (idx !== -1) {
+      companies[idx] = { ...companies[idx], ...companyData };
+    } else {
+      companies.push(companyData);
+    }
+    this.data.companies = companies;
+    if (id === 'comp_1' || companies[idx]?.isDefault) {
+      this.data.company = { ...this.data.company, ...companyData };
+    }
     this.saveData(this.data);
+    return companies[idx !== -1 ? idx : companies.length - 1];
   }
 
   getClients() {
@@ -251,11 +173,18 @@ class StorageEngine {
   }
 
   getProposals() {
-    return this.data.proposals || [];
+    const all = this.data.proposals || [];
+    return all.filter(p => !p.isProforma);
+  }
+
+  getProformas() {
+    const all = this.data.proposals || [];
+    return all.filter(p => p.isProforma === true);
   }
 
   getProposal(id) {
-    return this.getProposals().find(p => p.id === id);
+    const all = this.data.proposals || [];
+    return all.find(p => p.id === id);
   }
 
   saveProposal(proposal) {
@@ -270,6 +199,16 @@ class StorageEngine {
     }
     this.saveData(this.data);
     return proposal;
+  }
+
+  updateProposalStatus(id, newStatus) {
+    const proposal = this.getProposal(id);
+    if (proposal) {
+      proposal.status = newStatus;
+      this.saveProposal(proposal);
+      return proposal;
+    }
+    return null;
   }
 
   deleteProposal(id) {

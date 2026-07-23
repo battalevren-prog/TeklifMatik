@@ -313,18 +313,23 @@ body {
 /* Page Views Container */
 .view-container {
   flex: 1;
-  padding: 20px 24px;
+  padding: 20px 28px;
   overflow-y: auto;
   overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .view-section {
   display: none;
+  width: 100%;
   animation: fadeIn 0.2s ease-in-out;
 }
 
 .view-section.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 @keyframes fadeIn {
@@ -405,9 +410,11 @@ body {
   backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 20px 24px;
   margin-bottom: 20px;
   box-shadow: var(--shadow-sm);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .panel-header {
@@ -754,3 +761,94 @@ textarea.form-control {
     align-items: flex-start;
   }
 }
+
+/* PDF Document Container Relative Context for Centered Watermark */
+.pdf-document,
+#pdf-document-container {
+  position: relative !important;
+  overflow: hidden;
+}
+
+/* Watermark Stamp Style - Centered on PDF Page */
+.pdf-watermark-stamp {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-18deg);
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: 6px;
+  padding: 12px 32px;
+  border: 5px dashed;
+  border-radius: 14px;
+  opacity: 0.28;
+  pointer-events: none;
+  z-index: 99;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Quick status select in table */
+.quick-status-select {
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background-color: var(--bg-card);
+}
+
+/* Multi-Company Settings Tabs */
+.company-settings-tab.active {
+  background: var(--accent-gradient);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+/* Custom Item Autocomplete Dropdown */
+.item-autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: none;
+}
+
+.item-autocomplete-option {
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.88rem;
+  color: #f3f4f6;
+  background: #111827;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.item-autocomplete-option:last-child {
+  border-bottom: none;
+}
+
+.item-autocomplete-option strong {
+  color: #ffffff;
+}
+
+.item-autocomplete-option:hover,
+.item-autocomplete-option.selected {
+  background: #1e3a8a;
+  color: #ffffff;
+}
+
+.item-autocomplete-option:hover strong,
+.item-autocomplete-option.selected strong {
+  color: #93c5fd;
+}
+

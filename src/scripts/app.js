@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initNavigation();
   initModalListeners();
+  initKeyboardShortcuts();
   
   // Render initial dashboard view
   window.renderDashboard();
@@ -14,6 +15,54 @@ document.addEventListener('DOMContentLoaded', () => {
   window.renderCatalogList();
   window.loadSettingsForm();
 });
+
+// Keyboard Shortcuts Integration
+function initKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    // Ctrl + N (New Proposal)
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
+      e.preventDefault();
+      if (window.openProposalBuilder) {
+        window.openProposalBuilder();
+        showToast('Yeni teklif oluşturucu açıldı (Ctrl+N)', 'info');
+      }
+    }
+
+    // Ctrl + S (Save Proposal or Settings)
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      const activeSection = document.querySelector('.view-section.active');
+      if (activeSection) {
+        if (activeSection.id === 'view-proposal-builder') {
+          if (window.saveCurrentProposal) window.saveCurrentProposal();
+        } else if (activeSection.id === 'view-settings') {
+          if (window.saveSettingsForm) window.saveSettingsForm();
+        }
+      }
+    }
+
+    // Escape (Close Modals)
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.active, .modal.active').forEach(m => {
+        m.classList.remove('active');
+      });
+      if (window.closeClientHistoryModal) window.closeClientHistoryModal();
+    }
+
+    // Ctrl + F (Search Focus)
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+      const activeSection = document.querySelector('.view-section.active');
+      if (activeSection) {
+        const searchInput = activeSection.querySelector('input[type="text"][placeholder*="ara"]');
+        if (searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+    }
+  });
+}
 
 // Navigation & Tab Switching
 function switchTab(viewId) {
@@ -25,7 +74,6 @@ function switchTab(viewId) {
     target.classList.add('active');
   }
 
-  // Update sidebar active link
   const navItems = document.querySelectorAll('.nav-item');
   navItems.forEach(item => {
     if (item.getAttribute('data-view') === viewId) {
@@ -35,7 +83,6 @@ function switchTab(viewId) {
     }
   });
 
-  // Header Title update
   const titleMap = {
     'view-dashboard': 'Ana Sayfa & Özet',
     'view-proposals-list': 'Teklif Yönetimi',
@@ -52,12 +99,11 @@ function switchTab(viewId) {
     headerTitle.textContent = titleMap[viewId];
   }
 
-  // Trigger view refresh if needed
-  if (viewId === 'view-dashboard') window.renderDashboard();
-  if (viewId === 'view-proposals-list') window.renderProposalsList();
-  if (viewId === 'view-clients-list') window.renderClientsList();
-  if (viewId === 'view-products-catalog' || viewId === 'view-services-catalog') window.renderCatalogList();
-  if (viewId === 'view-settings') window.loadSettingsForm();
+  if (viewId === 'view-dashboard' && window.renderDashboard) window.renderDashboard();
+  if (viewId === 'view-proposals-list' && window.renderProposalsList) window.renderProposalsList();
+  if (viewId === 'view-clients-list' && window.renderClientsList) window.renderClientsList();
+  if ((viewId === 'view-products-catalog' || viewId === 'view-services-catalog') && window.renderCatalogList) window.renderCatalogList();
+  if (viewId === 'view-settings' && window.loadSettingsForm) window.loadSettingsForm();
 }
 
 function initNavigation() {
@@ -71,7 +117,6 @@ function initNavigation() {
   });
 }
 
-// Theme Switcher (Dark / Light Mode)
 function initTheme() {
   const savedTheme = localStorage.getItem('teklifmatik_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -96,7 +141,6 @@ function updateThemeButtonUI(theme) {
   }
 }
 
-// Toast Notifications System
 function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   if (!container) return;
@@ -119,7 +163,6 @@ function showToast(message, type = 'info') {
   }, 3500);
 }
 
-// Backup Export & Import
 async function handleExportBackup() {
   const jsonStr = window.DB.exportAll();
   
@@ -131,7 +174,6 @@ async function handleExportBackup() {
       showToast(`Yedekleme hatası: ${res.error}`, 'error');
     }
   } else {
-    // Browser Download fallback
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -150,14 +192,13 @@ async function handleImportBackup() {
       const ok = window.DB.importAll(res.data);
       if (ok) {
         showToast('Veriler başarıyla içe aktarıldı!', 'success');
-        window.renderDashboard();
-        window.renderProposalsList();
+        if (window.renderDashboard) window.renderDashboard();
+        if (window.renderProposalsList) window.renderProposalsList();
       } else {
         showToast('Geçersiz yedek dosyası formatı.', 'error');
       }
     }
   } else {
-    // File input fallback
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
@@ -171,8 +212,8 @@ async function handleImportBackup() {
           const ok = window.DB.importAll(parsed);
           if (ok) {
             showToast('Veriler içeri aktarıldı!', 'success');
-            window.renderDashboard();
-            window.renderProposalsList();
+            if (window.renderDashboard) window.renderDashboard();
+            if (window.renderProposalsList) window.renderProposalsList();
           } else {
             showToast('Geçersiz yedek formatı.', 'error');
           }
@@ -187,7 +228,6 @@ async function handleImportBackup() {
 }
 
 function initModalListeners() {
-  // Close modals on overlay click
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {

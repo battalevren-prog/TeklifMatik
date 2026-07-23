@@ -38,7 +38,16 @@ function renderDashboard() {
     return;
   }
 
-  const recent = proposals.slice(0, 5);
+  const sorted = [...proposals].sort((a, b) => {
+    const dateA = new Date(a.date || a.createdAt || 0).getTime();
+    const dateB = new Date(b.date || b.createdAt || 0).getTime();
+    if (dateB !== dateA) return dateB - dateA;
+    const idA = parseInt(String(a.id).replace(/\D/g, '')) || 0;
+    const idB = parseInt(String(b.id).replace(/\D/g, '')) || 0;
+    return idB - idA;
+  });
+
+  const recent = sorted.slice(0, 5);
   tbody.innerHTML = recent.map(p => {
     const totals = calculateProposalTotals(p);
     const formattedDate = new Date(p.date).toLocaleDateString('tr-TR');
