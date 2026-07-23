@@ -14,57 +14,31 @@ let currentPdfConvertToTRY = false;
 function buildTRYConversionHTML(p, totals, accentColor) {
   if (!currentPdfConvertToTRY) return '';
   const currency = p.currency || 'TRY';
-  if (currency === 'TRY') return ''; // Already TRY, no conversion needed
+  if (currency === 'TRY') return '';
 
-  // Get rates from CurrencyEngine
   const rates = (window.CurrencyEngine && window.CurrencyEngine.cachedRates) || {};
   const rateToTRY = rates[currency];
   if (!rateToTRY || rateToTRY <= 0) {
     return `
-      <div style="margin-top: 16px; padding: 14px 18px; border-radius: 8px; background: rgba(245,158,11,0.1); border: 1px dashed #f59e0b; font-size: 11px; color: #92400e;">
-        <strong>⚠ TL Karşılığı:</strong> Kur bilgisi bulunamadı. Lütfen Firma Ayarları &gt; Kur Güncelle butonuna basın.
+      <div style="margin-top: 10px; padding: 8px 12px; border-radius: 6px; background: rgba(245,158,11,0.08); border: 1px dashed #f59e0b; font-size: 10px; color: #92400e;">
+        <strong>&#9888; TL Kar&#351;&#305;l&#305;&#287;&#305;:</strong> Kur bilgisi bulunamad&#305;. Kur G&#252;ncelle butonuna bas&#305;n.
       </div>`;
   }
 
-  const currSymbol = getCurrencySymbol(currency);
-  const rateDate = (window.CurrencyEngine && window.CurrencyEngine.lastFetchedDate) || 'bilinmiyor';
-
-  const subtotalTRY    = totals.subtotal * rateToTRY;
-  const discountTRY    = totals.discountAmount * rateToTRY;
-  const vatTRY         = totals.vatTotal * rateToTRY;
-  const grandTotalTRY  = totals.grandTotal * rateToTRY;
-
-  const discountRow = totals.discountAmount > 0 ? `
-    <tr>
-      <td style="padding: 3px 8px;">İskonto (%${p.discountRate}):</td>
-      <td style="padding: 3px 8px; text-align: right; color: #ef4444;">- ₺ ${discountTRY.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
-    </tr>` : '';
+  const rateDate = (window.CurrencyEngine && window.CurrencyEngine.lastFetchedDate) || '';
+  const grandTotalTRY = totals.grandTotal * rateToTRY;
 
   return `
-    <div style="margin-top: 20px; padding: 16px 18px; border-radius: 8px; background: rgba(59,130,246,0.06); border: 2px solid rgba(59,130,246,0.3);">
-      <div style="font-size: 11px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
-        ₺ TÜRK LİRASI KARŞILIĞI (1 ${currency} = ${rateToTRY.toLocaleString('tr-TR', { minimumFractionDigits: 4 })} ₺)
+    <div style="margin-top: 10px; padding: 8px 14px; border-radius: 6px; background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.25); display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+      <div style="font-size: 10px; color: #475569; white-space: nowrap;">
+        &#8378; TL Kar&#351;&#305;l&#305;&#287;&#305; <span style="color: #94a3b8;">(1 ${currency} = ${rateToTRY.toLocaleString('tr-TR', { minimumFractionDigits: 4 })} &#8378;${rateDate ? ' &middot; ' + rateDate : ''})</span>
       </div>
-      <table style="width: 100%; font-size: 11px; border-collapse: collapse; color: #1e293b;">
-        <tr>
-          <td style="padding: 3px 8px;">Ara Toplam (TL):</td>
-          <td style="padding: 3px 8px; text-align: right;">₺ ${subtotalTRY.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
-        </tr>
-        ${discountRow}
-        <tr>
-          <td style="padding: 3px 8px;">KDV Toplamı (TL):</td>
-          <td style="padding: 3px 8px; text-align: right;">₺ ${vatTRY.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
-        </tr>
-        <tr style="font-weight: 700; font-size: 12px; border-top: 1px solid rgba(59,130,246,0.4);">
-          <td style="padding: 6px 8px 3px;">GENEL TOPLAM (TL):</td>
-          <td style="padding: 6px 8px 3px; text-align: right;">₺ ${grandTotalTRY.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
-        </tr>
-      </table>
-      <div style="font-size: 9.5px; color: #64748b; margin-top: 8px; border-top: 1px solid rgba(59,130,246,0.2); padding-top: 6px;">
-        * Kur bilgisi: TCMB / ${rateDate} — Bilgi amaçlıdır, bağlayıcı değildir.
+      <div style="font-size: 13px; font-weight: 700; color: #1e40af; white-space: nowrap;">
+        &#8378; ${grandTotalTRY.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
       </div>
     </div>`;
 }
+
 
 function viewProposalPDF(proposalId) {
   activePreviewProposalId = proposalId;
