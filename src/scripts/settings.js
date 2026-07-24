@@ -68,6 +68,17 @@ function loadSettingsForm(companyId = activeCompanySettingsId) {
     }
   }
 
+  const stampPreview = document.getElementById('setting-stamp-preview');
+  if (stampPreview) {
+    if (company.stamp) {
+      stampPreview.src = company.stamp;
+      stampPreview.style.display = 'block';
+    } else {
+      stampPreview.src = '';
+      stampPreview.style.display = 'none';
+    }
+  }
+
   // Load exchange rates
   const rates = window.DB.getExchangeRates();
   if (rates) {
@@ -111,7 +122,11 @@ function saveSettingsForm() {
     pdfAccentColor: document.getElementById('setting-pdf-color').value,
     pdfTemplate: document.getElementById('setting-pdf-template')?.value || 'modern',
     pdfShowWatermark: document.getElementById('setting-pdf-watermark')?.checked !== false,
-    logo: logoData
+    logo: logoData,
+    stamp: (() => {
+      const sp = document.getElementById('setting-stamp-preview');
+      return (sp && sp.style.display !== 'none' && sp.src) ? sp.src : '';
+    })()
   };
 
   window.DB.saveCompany(companyData);
@@ -186,9 +201,40 @@ function removeLogo() {
   document.getElementById('setting-logo-input').value = '';
 }
 
+function handleStampUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 3 * 1024 * 1024) {
+    window.showToast('Kaşe resmi 3MB\'tan küçük olmalıdır.', 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const stampPreview = document.getElementById('setting-stamp-preview');
+    if (stampPreview) {
+      stampPreview.src = e.target.result;
+      stampPreview.style.display = 'block';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeStamp() {
+  const stampPreview = document.getElementById('setting-stamp-preview');
+  if (stampPreview) {
+    stampPreview.src = '';
+    stampPreview.style.display = 'none';
+  }
+  document.getElementById('setting-stamp-input').value = '';
+}
+
 window.loadSettingsForm = loadSettingsForm;
 window.saveSettingsForm = saveSettingsForm;
 window.switchCompanySettingsTab = switchCompanySettingsTab;
 window.fetchAndDisplayTCMBRates = fetchAndDisplayTCMBRates;
 window.handleLogoUpload = handleLogoUpload;
 window.removeLogo = removeLogo;
+window.handleStampUpload = handleStampUpload;
+window.removeStamp = removeStamp;

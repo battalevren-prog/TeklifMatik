@@ -606,6 +606,18 @@
                   </button>
                   <button type="button" class="btn btn-danger btn-sm" onclick="removeLogo()">Logoyu Kaldır</button>
                 </div>
+
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Firma Kaşesi (Proforma Fatura Alt&#305;nda Görünür)</label>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                  <img id="setting-stamp-preview" src="" style="max-height: 80px; max-width: 180px; display: none; border-radius: 6px; border: 1px solid var(--border-color); padding: 4px; background: #fff;">
+                  <input type="file" id="setting-stamp-input" accept="image/*" style="display: none;" onchange="handleStampUpload(event)">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('setting-stamp-input').click()">
+                    <i class="ri-seal-line"></i> Ka&#351;e Yükle
+                  </button>
+                  <button type="button" class="btn btn-danger btn-sm" onclick="removeStamp()">Ka&#351;eyi Kaldır</button>
+                </div>
+              </div>
               </div>
 
               <div class="form-group">

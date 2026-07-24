@@ -639,9 +639,12 @@ function renderProformaPDFDocument() {
           Bu belge proforma fatura niteliğindedir.<br>Yasal fatura değildir.
         </div>
         <div style="text-align: center;">
-          <div style="width: 200px; border-bottom: 1.5px solid #1e293b; margin: 0 auto 8px auto;"></div>
-          <div style="font-size: 11px; font-weight: 700; color: #1e293b;">${escapeHTML(company.name)}</div>
-          <div style="font-size: 10px; color: #64748b;">Kaşe / Yetkili İmza</div>
+          ${company.stamp
+            ? `<img src="${company.stamp}" style="max-height: 90px; max-width: 200px; object-fit: contain; display: block; margin: 0 auto 6px auto;" alt="Firma Ka\u015fesi">`
+            : `<div style="width: 200px; border-bottom: 1.5px solid #1e293b; margin: 0 auto 8px auto;"></div>
+               <div style="font-size: 11px; font-weight: 700; color: #1e293b;">${escapeHTML(company.name)}</div>`
+          }
+          <div style="font-size: 10px; color: #64748b; margin-top: 4px;">Kaşe / Yetkili İmza</div>
         </div>
       </div>
 
