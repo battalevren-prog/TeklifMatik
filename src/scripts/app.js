@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.renderClientsList();
   window.renderCatalogList();
   window.loadSettingsForm();
+  if (window.renderProformasList) window.renderProformasList();
 });
 
 // Keyboard Shortcuts Integration
@@ -91,7 +92,8 @@ function switchTab(viewId) {
     'view-products-catalog': 'Ürün Kataloğu',
     'view-services-catalog': 'Hizmet Kataloğu',
     'view-settings': 'Firma Ayarları & Özelleştirme',
-    'view-pdf-preview': 'Teklif Önizleme & PDF'
+    'view-pdf-preview': 'Teklif Önizleme & PDF',
+    'view-proformas': 'Proforma Fatura Yönetimi'
   };
 
   const headerTitle = document.getElementById('header-title-text');
@@ -104,6 +106,7 @@ function switchTab(viewId) {
   if (viewId === 'view-clients-list' && window.renderClientsList) window.renderClientsList();
   if ((viewId === 'view-products-catalog' || viewId === 'view-services-catalog') && window.renderCatalogList) window.renderCatalogList();
   if (viewId === 'view-settings' && window.loadSettingsForm) window.loadSettingsForm();
+  if (viewId === 'view-proformas' && window.renderProformasList) window.renderProformasList();
 }
 
 function initNavigation() {
